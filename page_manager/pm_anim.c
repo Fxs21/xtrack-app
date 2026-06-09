@@ -254,19 +254,9 @@ void pm_anim_start(page_t *page)
         return;
     }
 
-    lv_obj_t *scr = lv_scr_act();
-    lv_coord_t w  = lv_obj_get_width(scr);
-    lv_coord_t h  = lv_obj_get_height(scr);
-    if (w <= 0 || h <= 0) {
-        /* No screen dimensions -- skip animation */
-        if (page->priv.anim.is_entering) {
-            page->priv.state = PAGE_STATE_DID_APPEAR;
-        } else {
-            page->priv.state = PAGE_STATE_DID_DISAPPEAR;
-        }
-        pm_state_update(pm, page);
-        return;
-    }
+    lv_display_t *disp = lv_display_get_default();
+    lv_coord_t w = lv_display_get_horizontal_resolution(disp);
+    lv_coord_t h = lv_display_get_vertical_resolution(disp);
 
     pm_anim_attr_t attr;
     if (!pm_get_anim_attr(atype, w, h, &attr)) {
@@ -335,8 +325,11 @@ void pm_anim_start(page_t *page)
     lv_anim_set_path_cb(&a, page_anim_path(page));
     lv_anim_set_ready_cb(&a, on_anim_finish);
     lv_anim_set_user_data(&a, page);
-    lv_anim_start(&a);
-
+    /* Mark busy BEFORE starting the animation.  If LVGL fires the
+     * ready callback synchronously, the callback will decrement
+     * busy_count and we must not re-increment it afterwards. */
     page->priv.anim.is_busy = true;
     pm->busy_count++;
+
+    lv_anim_start(&a);
 }
