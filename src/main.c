@@ -1,27 +1,34 @@
 /**
  * @file main.c
  * LVGL SDL2 simulator — entry point
- *
- * Steps:
- *   1. lv_init()              — initialize LVGL core
- *   2. hal_init(w, h)         — create SDL2 window + input devices
- *   3. lv_timer_handler() loop — drive LVGL event loop
  */
+
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
+#include <unistd.h>
 
 #include "lvgl/lvgl.h"
 #include "hal/hal.h"
+#include "app.h"
+#include "utils/log.h"
+#include <stdio.h>
+
+#define TAG "main"
 
 int main(void)
 {
     lv_init();
+    hal_init();
 
-    /* 480 x 320 landscape — matches X-Track LCD */
-    lv_display_t * disp = hal_init(480, 320);
+    lv_display_t *disp = hal_init_display(480, 320);
+
     (void)disp;
 
-    LV_LOG_USER("LVGL simulator started");
+    app_init();
 
-    /* Main loop */
+    LOG_I(TAG, "LVGL simulator started");
+
     while (1) {
         uint32_t delay = lv_timer_handler();
         if (delay == LV_NO_TIMER_READY)

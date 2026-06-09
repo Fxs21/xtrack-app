@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(lvgl-simulator C)
 
+# Generate compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 #============================================================
 # LVGL — add_subdirectory creates `lvgl` library target
 #============================================================
@@ -21,4 +24,4 @@ add_executable(lvgl-sim ${SOURCES})
 # lvgl already includes lv_conf.h path via its own target
 # We just need SDL2 and our own headers
 target_include_directories(lvgl-sim PRIVATE src)
-target_link_libraries(lvgl-sim PRIVATE lvgl SDL2)
+target_link_libraries(lvgl-sim PRIVATE lvgl SDL2 m)
