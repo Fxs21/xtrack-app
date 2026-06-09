@@ -18,7 +18,7 @@
 #define PAGE_MANAGER_H
 
 #include "page.h"
-#include "utils/vector.h"
+#include "utils/ds/vector.h"
 
 #ifdef __cplusplus
 extern "C" {

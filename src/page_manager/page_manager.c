@@ -11,7 +11,7 @@
  */
 #include "pm_internal.h"
 #include "utils/log.h"
-#include "utils/uthash/utstack.h"
+#include "uthash/utstack.h"
 #include <stdlib.h>
 #include <string.h>
 
