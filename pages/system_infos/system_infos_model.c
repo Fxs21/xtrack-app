@@ -17,11 +17,8 @@ static int on_model_event(account_t *account, account_event_param_t *param)
 
     if (strcmp(param->tran->id, "GPS") == 0 && param->size == sizeof(hal_gps_info_t)) {
         memcpy(&m->gps_info, param->data, sizeof(hal_gps_info_t));
-        LOG_D(TAG, "GPS: %.4f,%.4f spd=%.1f",
-              m->gps_info.latitude, m->gps_info.longitude, m->gps_info.speed);
     } else if (strcmp(param->tran->id, "Power") == 0 && param->size == sizeof(hal_power_info_t)) {
         memcpy(&m->power_info, param->data, sizeof(hal_power_info_t));
-        LOG_D(TAG, "Power: %d%% %dmV", m->power_info.percentage, m->power_info.voltage);
     } else {
         return ACCOUNT_ERR_UNSUPPORTED;
     }

@@ -28,16 +28,12 @@ static account_err_t on_main_event(account_t *account,
 
     switch (param->event) {
     case ACCOUNT_EVENT_PUB_PUBLISH:
-        LOG_D(TAG, "%s published", param->tran->id);
         break;
     case ACCOUNT_EVENT_NOTIFY:
-        LOG_D(TAG, "%s notified %s", param->tran->id, param->recv->id);
         break;
     case ACCOUNT_EVENT_SUB_PULL:
-        LOG_D(TAG, "%s pulled by %s", param->recv->id, param->tran->id);
         break;
     case ACCOUNT_EVENT_TIMER:
-        LOG_D(TAG, "timer tick on %s", param->recv->id);
         break;
     default:
         break;

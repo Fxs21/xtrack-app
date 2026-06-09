@@ -25,9 +25,6 @@ static int on_model_event(account_t *account, account_event_param_t *param)
     /* Store latest clock data */
     memcpy(&m->clock_info, param->data, sizeof(hal_clock_info_t));
 
-    LOG_D(TAG, "clock updated: %02d:%02d:%02d", m->clock_info.hour,
-          m->clock_info.minute, m->clock_info.second);
-
     /* Notify Presenter so it can update the View immediately */
     if (m->event_cb) {
         m->event_cb(m, param);

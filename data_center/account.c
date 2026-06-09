@@ -86,14 +86,11 @@ void account_destroy(account_t *account)
     /* Delete timer */
     if (account->priv.timer) {
         lv_timer_del(account->priv.timer);
-        LOG_I(TAG, "Account[%s] task deleted", account->id);
     }
 
     /* Disconnect subscribers: tell each subscriber to unsubscribe from us */
     while (account->subscribers.count > 0) {
         account_t *subscriber = (account_t *)account->subscribers.items[0];
-        LOG_I(TAG, "subscriber[%s] unsubscribed publisher[%s]", subscriber->id,
-              account->id);
         account_unsubscribe(subscriber, account->id);
     }
 
@@ -101,8 +98,6 @@ void account_destroy(account_t *account)
      */
     while (account->publishers.count > 0) {
         account_t *publisher = (account_t *)account->publishers.items[0];
-        LOG_I(TAG, "publisher[%s] removed subscriber[%s]", publisher->id,
-              account->id);
         vector_remove(&publisher->subscribers, account);
         vector_remove(&account->publishers, publisher);
     }
@@ -190,8 +185,6 @@ account_err_t account_commit(account_t *self, const void *data, uint32_t size)
     dbl_buf_get_write_buf(&self->priv.dbl_buf, &w_buf);
     memcpy(w_buf, data, size);
     dbl_buf_set_write_done(&self->priv.dbl_buf);
-    LOG_I(TAG, "publisher[%s] commit data(%p)[%u] >> data(%p)[%u] done",
-          self->id, data, size, w_buf, size);
     return ACCOUNT_OK;
 }
 
@@ -211,7 +204,6 @@ account_err_t account_publish(account_t *self)
     for (int i = 0; i < self->subscribers.count; i++) {
         account_t *subscriber = (account_t *)self->subscribers.items[i];
         if (!subscriber || !subscriber->priv.callback) {
-            LOG_I(TAG, "subscriber[%s] not register callback", subscriber->id);
             continue;
         }
 
@@ -222,12 +214,8 @@ account_err_t account_publish(account_t *self)
         param.data  = r_buf;
         param.size  = self->priv.dbl_buf.size;
 
-        LOG_I(TAG, "publisher[%s] publish >> data(%p)[%u] >> subscriber[%s]...",
-              self->id, param.data, param.size, subscriber->id);
-
         retval = subscriber->priv.callback(subscriber, &param);
 
-        LOG_I(TAG, "publish done: %d", retval);
     }
 
     dbl_buf_set_read_done(&self->priv.dbl_buf);
@@ -249,9 +237,6 @@ account_err_t account_pull(account_t *self, const char *pub_id, void *data,
     if (!vector_contains(&self->publishers, publisher))
         return ACCOUNT_ERR_NOT_FOUND;
 
-    LOG_I(TAG, "subscriber[%s] pull << data(%p)[%u] << publisher[%s] ...",
-          self->id, data, size, publisher->id);
-
     /* Try publisher's callback first */
     if (publisher->priv.callback) {
         account_event_param_t param;
@@ -262,7 +247,6 @@ account_err_t account_pull(account_t *self, const char *pub_id, void *data,
         param.size  = size;
 
         account_err_t ret = publisher->priv.callback(publisher, &param);
-        LOG_I(TAG, "pull done: %d", ret);
         return ret;
     }
 
@@ -278,7 +262,6 @@ account_err_t account_pull(account_t *self, const char *pub_id, void *data,
         if (dbl_buf_get_read_buf(&publisher->priv.dbl_buf, &r_buf)) {
             memcpy(data, r_buf, size);
             dbl_buf_set_read_done(&publisher->priv.dbl_buf);
-            LOG_I(TAG, "read done");
             return ACCOUNT_OK;
         }
         LOG_W(TAG, "publisher[%s] data was not committed", publisher->id);
@@ -306,9 +289,6 @@ account_err_t account_notify(account_t *self, const char *target_id,
         return ACCOUNT_ERR_NOT_FOUND;
     }
 
-    LOG_I(TAG, "subscriber[%s] notify >> data(%p)[%u] >> publisher[%s] ...",
-          self->id, data, size, target_id);
-
     if (!target->priv.callback) {
         LOG_W(TAG, "publisher[%s] not register callback", target_id);
         return ACCOUNT_ERR_NO_CALLBACK;
@@ -322,7 +302,8 @@ account_err_t account_notify(account_t *self, const char *target_id,
     param.size  = size;
 
     account_err_t ret = target->priv.callback(target, &param);
-    LOG_I(TAG, "send done: %d", ret);
+    if (ret != ACCOUNT_OK)
+        LOG_E(TAG, "send failed: %d", ret);
     return ret;
 }
 

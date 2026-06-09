@@ -59,15 +59,7 @@ static void on_refresh_click(lv_event_t *e)
 static void on_info_click(lv_event_t *e)
 {
     page_dialplate_t *p = (page_dialplate_t *)lv_event_get_user_data(e);
-    LOG_I(TAG, "Page(Dialplate) navigate to SystemInfos");
     pm_push(p->base.manager, "SystemInfos", NULL);
-}
-
-static void on_leave(lv_event_t *e)
-{
-    page_t *page = (page_t *)lv_event_get_user_data(e);
-    LOG_I(TAG, "Page(%s) leave -> pop", page->name);
-    pm_pop(page->manager);
 }
 
 /* ================================================================
@@ -95,7 +87,6 @@ static void on_load(page_t *base)
 
     /* ---- Drag support (test push/pop) ---- */
     pm_root_enable_drag(base->manager, base);
-    lv_obj_add_event_cb(root, on_leave, LV_EVENT_LEAVE, base);
 
     /* ---- Click to navigate ---- */
     lv_obj_add_event_cb(root, on_info_click, LV_EVENT_CLICKED, p);

@@ -60,17 +60,6 @@ static int on_data_arrived(system_infos_model_t *m, account_event_param_t *param
 }
 
 /* ================================================================
- *  LVGL events
- * ================================================================ */
-
-static void on_leave(lv_event_t *e)
-{
-    page_t *page = (page_t *)lv_event_get_user_data(e);
-    LOG_I(TAG, "Page(%s) leave -> pop", page->name);
-    pm_pop(page->manager);
-}
-
-/* ================================================================
  *  Page lifecycle
  * ================================================================ */
 
@@ -93,7 +82,6 @@ static void on_load(page_t *base)
 
     /* ---- Drag support ---- */
     pm_root_enable_drag(base->manager, base);
-    lv_obj_add_event_cb(root, on_leave, LV_EVENT_LEAVE, base);
 }
 
 static void on_did_unload(page_t *base)
