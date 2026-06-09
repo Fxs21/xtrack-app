@@ -11,7 +11,7 @@
 #include "status_bar.h"
 #include "hal/hal_clock.h"
 #include "hal/hal_power.h"
-#include "utils/log.h"
+#include "log.h"
 #include <stdio.h>
 #include <string.h>
 

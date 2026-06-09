@@ -9,7 +9,7 @@
  * -> (cached ? WILL_APPEAR : UNLOAD) -> IDLE.
  */
 #include "pm_internal.h"
-#include "utils/log.h"
+#include "log.h"
 #include <stdlib.h>
 
 #define TAG "page_manager"

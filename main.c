@@ -11,7 +11,7 @@
 #include "lvgl/lvgl.h"
 #include "hal/hal.h"
 #include "app.h"
-#include "utils/log.h"
+#include "log.h"
 #include <stdio.h>
 
 #define TAG "main"

@@ -10,7 +10,7 @@
  */
 #include "data_center.h"
 #include "utils/ds/vector.h"
-#include "utils/log.h"
+#include "log.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

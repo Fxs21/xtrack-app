@@ -10,7 +10,7 @@
 #include "system_infos_page.h"
 #include "app.h"
 #include "page_manager/page_manager.h"
-#include "utils/log.h"
+#include "log.h"
 #include <stdio.h>
 
 #define TAG "system_infos"

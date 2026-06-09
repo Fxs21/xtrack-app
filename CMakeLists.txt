@@ -19,57 +19,57 @@ add_subdirectory(third_party/lvgl)
 #============================================================
 # === Core ===
 set(CORE_SOURCES
-    src/main.c
-    src/app.c
+    main.c
+    app.c
 )
 
 # === HAL ===
 set(HAL_SOURCES
-    src/hal/hal_clock.c
-    src/hal/hal_gps.c
-    src/hal/hal_init.c
-    src/hal/hal_power.c
-    src/hal/hal_sdl.c
+    hal/hal_clock.c
+    hal/hal_gps.c
+    hal/hal_init.c
+    hal/hal_power.c
+    hal/hal_sdl.c
 )
 
 # === Data Center ===
 set(DATA_CENTER_SOURCES
-    src/data_center/account.c
-    src/data_center/data_center.c
+    data_center/account.c
+    data_center/data_center.c
 )
 
 # === Data Process ===
 set(DATA_PROC_SOURCES
-    src/data_proc/data_proc.c
-    src/data_proc/dp_clock.c
-    src/data_proc/dp_gps.c
-    src/data_proc/dp_power.c
+    data_proc/data_proc.c
+    data_proc/dp_clock.c
+    data_proc/dp_gps.c
+    data_proc/dp_power.c
 )
 
 # === Page Manager ===
 set(PAGE_MANAGER_SOURCES
-    src/page_manager/page.c
-    src/page_manager/page_manager.c
-    src/page_manager/pm_anim.c
-    src/page_manager/pm_drag.c
-    src/page_manager/pm_state.c
+    page_manager/page.c
+    page_manager/page_manager.c
+    page_manager/pm_anim.c
+    page_manager/pm_drag.c
+    page_manager/pm_state.c
 )
 
 # === Pages ===
 set(PAGES_SOURCES
-    src/pages/dialplate_model.c
-    src/pages/dialplate_page.c
-    src/pages/dialplate_view.c
-    src/pages/status_bar.c
-    src/pages/system_infos_model.c
-    src/pages/system_infos_page.c
-    src/pages/system_infos_view.c
+    pages/dialplate_model.c
+    pages/dialplate_page.c
+    pages/dialplate_view.c
+    pages/status_bar.c
+    pages/system_infos_model.c
+    pages/system_infos_page.c
+    pages/system_infos_view.c
 )
 
 # === Data Structures ===
 set(DS_SOURCES
-    src/utils/ds/dbl_buf.c
-    src/utils/ds/vector.c
+    utils/ds/dbl_buf.c
+    utils/ds/vector.c
 )
 
 # === Aggregate ===
@@ -87,5 +87,14 @@ add_executable(lvgl-sim ${SOURCES})
 
 # lvgl already includes lv_conf.h path via its own target
 # We just need SDL2, our own headers, and third_party (uthash)
-target_include_directories(lvgl-sim PRIVATE src third_party)
+target_include_directories(lvgl-sim PRIVATE
+    third_party
+    hal
+    data_center
+    data_proc
+    page_manager
+    pages
+    utils
+    utils/ds
+)
 target_link_libraries(lvgl-sim PRIVATE lvgl SDL2 m)

@@ -3,7 +3,7 @@
  * @brief SystemInfos Model — Account + state storage
  */
 #include "system_infos_model.h"
-#include "utils/log.h"
+#include "log.h"
 #include <string.h>
 
 #define TAG "system_infos_model"

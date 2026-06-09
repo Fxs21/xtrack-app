@@ -7,7 +7,7 @@
  */
 #include "data_proc.h"
 #include "hal/hal_gps.h"
-#include "utils/log.h"
+#include "log.h"
 #include <string.h>
 
 #define TAG "dp_gps"

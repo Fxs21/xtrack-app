@@ -3,7 +3,7 @@
  * @brief Page base implementation
  */
 #include "page.h"
-#include "utils/log.h"
+#include "log.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

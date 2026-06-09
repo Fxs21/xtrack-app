@@ -10,7 +10,7 @@
  * files: pm_anim.c, pm_state.c, pm_drag.c.
  */
 #include "pm_internal.h"
-#include "utils/log.h"
+#include "log.h"
 #include "uthash/utstack.h"
 #include <stdlib.h>
 #include <string.h>

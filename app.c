@@ -12,7 +12,7 @@
 #include "pages/dialplate_page.h"
 #include "pages/system_infos_page.h"
 #include "pages/status_bar.h"
-#include "utils/log.h"
+#include "log.h"
 
 #define TAG "app"
 

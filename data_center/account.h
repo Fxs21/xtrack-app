@@ -17,8 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "utils/ds/dbl_buf.h"
-#include "utils/ds/vector.h"
+#include "dbl_buf.h"
+#include "vector.h"
 #include "lvgl/lvgl.h"
 
 #ifdef __cplusplus

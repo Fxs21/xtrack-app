@@ -10,7 +10,7 @@
 #include "hal/hal_clock.h"
 #include "hal/hal_power.h"
 #include "hal/hal_gps.h"
-#include "utils/log.h"
+#include "log.h"
 
 #define TAG "data_proc"
 

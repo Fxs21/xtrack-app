@@ -3,7 +3,7 @@
  * @brief Dialplate Model — Account + state storage
  */
 #include "dialplate_model.h"
-#include "utils/log.h"
+#include "log.h"
 #include <string.h>
 
 #define TAG "dialplate_model"

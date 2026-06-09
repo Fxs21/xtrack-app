@@ -11,7 +11,7 @@
  * page animations, called from pm_state.c exec_will_appear/exec_will_disappear.
  */
 #include "pm_internal.h"
-#include "utils/log.h"
+#include "log.h"
 #include <string.h>
 
 #define TAG "page_manager"
