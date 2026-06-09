@@ -76,7 +76,7 @@ typedef account_err_t (*account_cb_t)(account_t *account,
 struct account_t {
     const char *id;             /**< Unique account id string */
     data_center_t *data_center; /**< Back-pointer to owning DataCenter */
-    void *udata;                /**< Free pointer for user-defined data */
+    void *user_data;            /**< Free pointer for user-defined data */
 
     vector_t publishers;  /**< Followed publishers (dynamic array) */
     vector_t subscribers; /**< Followers (dynamic array) */
@@ -95,7 +95,7 @@ struct account_t {
  * @param  data_center: Pointer to the DataCenter
  * @param  id:       Unique account id string
  * @param  buf_size: Size of one double-buffer slot (0 = no buffer)
- * @param  udata: Free pointer attached to the account (may be NULL)
+ * @param  user_data: Free pointer attached to the account (may be NULL)
  * @retval Pointer to the new account, or NULL on failure
  * @note   Combines allocation, field init, buffer allocation, and
  *         registration into one call, matching X-Track's constructor.
@@ -103,7 +103,7 @@ struct account_t {
  *         or account_set_callback().
  */
 account_t *account_create(data_center_t *data_center, const char *id,
-                          uint32_t buf_size, void *udata);
+                          uint32_t buf_size, void *user_data);
 
 /**
  * @brief  Destroy an account (destructor equivalent)

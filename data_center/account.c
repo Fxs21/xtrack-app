@@ -35,7 +35,7 @@ static void timer_cb(lv_timer_t *timer)
 /* ==== Account lifecycle ==== */
 
 account_t *account_create(data_center_t *data_center, const char *id,
-                          uint32_t buf_size, void *udata)
+                          uint32_t buf_size, void *user_data)
 {
     if (!data_center || !id)
         return NULL;
@@ -50,7 +50,7 @@ account_t *account_create(data_center_t *data_center, const char *id,
 
     account->id          = id;
     account->data_center = data_center;
-    account->udata       = udata;
+    account->user_data   = user_data;
 
     if (buf_size > 0) {
         uint8_t *buf = (uint8_t *)malloc(buf_size * 2);

@@ -83,7 +83,7 @@ static void on_load(page_t *base)
     system_infos_view_create(&p->view, root);
 
     /* ---- Model: create Account, subscribe to GPS + Power ---- */
-    system_infos_model_init(&p->model, g_data_center, p);
+    system_infos_model_init(&p->model, g_data_center);
     p->model.event_cb = on_data_arrived;
 
     /* ---- Initial data pull ---- */

@@ -10,7 +10,7 @@
 
 static int on_model_event(account_t *account, account_event_param_t *param)
 {
-    system_infos_model_t *m = (system_infos_model_t *)account->udata;
+    system_infos_model_t *m = (system_infos_model_t *)account->user_data;
 
     if (param->event != ACCOUNT_EVENT_PUB_PUBLISH)
         return ACCOUNT_ERR_UNSUPPORTED;
@@ -33,7 +33,7 @@ static int on_model_event(account_t *account, account_event_param_t *param)
     return ACCOUNT_OK;
 }
 
-void system_infos_model_init(system_infos_model_t *m, data_center_t *dc, void *udata)
+void system_infos_model_init(system_infos_model_t *m, data_center_t *dc)
 {
     memset(m, 0, sizeof(*m));
 
@@ -51,7 +51,6 @@ void system_infos_model_init(system_infos_model_t *m, data_center_t *dc, void *u
     }
 
     account_set_callback(m->account, on_model_event);
-    (void)udata;
 }
 
 void system_infos_model_deinit(system_infos_model_t *m)

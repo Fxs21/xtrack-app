@@ -83,7 +83,7 @@ static void on_load(page_t *base)
     dialplate_view_create(&p->view, root);
 
     /* ---- Model: create Account, subscribe to Clock ---- */
-    dialplate_model_init(&p->model, g_data_center, p);
+    dialplate_model_init(&p->model, g_data_center);
 
     /* Hook up event callback -- fires on every DataProc publish */
     p->model.event_cb = on_data_arrived;

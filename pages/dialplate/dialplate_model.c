@@ -12,7 +12,7 @@
 
 static int on_model_event(account_t *account, account_event_param_t *param)
 {
-    dialplate_model_t *m = (dialplate_model_t *)account->udata;
+    dialplate_model_t *m = (dialplate_model_t *)account->user_data;
 
     if (param->event != ACCOUNT_EVENT_PUB_PUBLISH) {
         return ACCOUNT_ERR_UNSUPPORTED;
@@ -38,7 +38,7 @@ static int on_model_event(account_t *account, account_event_param_t *param)
 
 /* ---- Public API ---- */
 
-void dialplate_model_init(dialplate_model_t *m, data_center_t *dc, void *udata)
+void dialplate_model_init(dialplate_model_t *m, data_center_t *dc)
 {
     memset(m, 0, sizeof(*m));
 
@@ -55,7 +55,6 @@ void dialplate_model_init(dialplate_model_t *m, data_center_t *dc, void *udata)
     }
 
     account_set_callback(m->account, on_model_event);
-    (void)udata;
 }
 
 void dialplate_model_deinit(dialplate_model_t *m)

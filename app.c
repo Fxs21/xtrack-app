@@ -59,7 +59,7 @@ void app_init(void)
     /* Set main account callback */
     account_t *main = data_center_find_account(g_data_center, "main");
     account_set_callback(main, on_main_event);
-    main->udata = NULL;
+    main->user_data = NULL;
 
     /* ---- DataProc nodes ---- */
     data_proc_init(g_data_center);

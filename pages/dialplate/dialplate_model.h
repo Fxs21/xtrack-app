@@ -21,7 +21,7 @@ struct dialplate_model_t {
 };
 
 /** Initialise Model: create Account, subscribe to "Clock" */
-void dialplate_model_init(dialplate_model_t *m, data_center_t *dc, void *udata);
+void dialplate_model_init(dialplate_model_t *m, data_center_t *dc);
 
 /** Deinitialise Model: destroy Account */
 void dialplate_model_deinit(dialplate_model_t *m);

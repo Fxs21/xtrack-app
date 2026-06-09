@@ -23,7 +23,7 @@ struct system_infos_model_t {
 };
 
 /** Initialise Model: create Account, subscribe to GPS and Power */
-void system_infos_model_init(system_infos_model_t *m, data_center_t *dc, void *udata);
+void system_infos_model_init(system_infos_model_t *m, data_center_t *dc);
 
 /** Deinitialise Model */
 void system_infos_model_deinit(system_infos_model_t *m);
