@@ -57,13 +57,13 @@ set(PAGE_MANAGER_SOURCES
 
 # === Pages ===
 set(PAGES_SOURCES
-    pages/dialplate_model.c
-    pages/dialplate_page.c
-    pages/dialplate_view.c
-    pages/status_bar.c
-    pages/system_infos_model.c
-    pages/system_infos_page.c
-    pages/system_infos_view.c
+    pages/dialplate/dialplate_model.c
+    pages/dialplate/dialplate_page.c
+    pages/dialplate/dialplate_view.c
+    pages/status_bar/status_bar.c
+    pages/system_infos/system_infos_model.c
+    pages/system_infos/system_infos_page.c
+    pages/system_infos/system_infos_view.c
 )
 
 # === Data Structures ===
@@ -93,7 +93,9 @@ target_include_directories(lvgl-sim PRIVATE
     data_center
     data_proc
     page_manager
-    pages
+    pages/dialplate
+    pages/status_bar
+    pages/system_infos
     utils
     utils/ds
 )

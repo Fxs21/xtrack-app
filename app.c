@@ -9,9 +9,9 @@
  */
 #include "app.h"
 #include "data_proc/data_proc.h"
-#include "pages/dialplate_page.h"
-#include "pages/system_infos_page.h"
-#include "pages/status_bar.h"
+#include "pages/dialplate/dialplate_page.h"
+#include "pages/system_infos/system_infos_page.h"
+#include "pages/status_bar/status_bar.h"
 #include "log.h"
 
 #define TAG "app"
