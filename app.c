@@ -19,32 +19,16 @@
 data_center_t *g_data_center = NULL;
 page_manager_t g_pm;
 
-/* ---- AccountMain callback: logs all events ---- */
-
-static account_err_t on_main_event(account_t *account,
-                                   account_event_param_t *param)
-{
-    (void)account;
-
-    switch (param->event) {
-    case ACCOUNT_EVENT_PUB_PUBLISH:
-        break;
-    case ACCOUNT_EVENT_NOTIFY:
-        break;
-    case ACCOUNT_EVENT_SUB_PULL:
-        break;
-    case ACCOUNT_EVENT_TIMER:
-        break;
-    default:
-        break;
-    }
-    return ACCOUNT_OK;
-}
-
 /* ---- App init ---- */
 
 void app_init(void)
 {
+    /* Disable scrolling on the default screen.  LVGL's built-in scroll
+     * mechanism fights with drag-to-pop: when drag moves a page root
+     * beyond the screen boundary, the screen auto-corrects its child
+     * positions, corrupting the drag offset.  Disable scroll entirely. */
+    lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+
     /* ---- DataCenter ---- */
     g_data_center = data_center_create();
     if (!g_data_center) {
@@ -52,12 +36,7 @@ void app_init(void)
         return;
     }
 
-    /* Set main account callback */
-    account_t *main = data_center_find_account(g_data_center, "main");
-    account_set_callback(main, on_main_event);
-    main->user_data = NULL;
-
-    /* ---- DataProc nodes ---- */
+    /* ---- DataProc ---- */
     data_proc_init(g_data_center);
 
     /* ---- Status bar (top-layer overlay) ---- */

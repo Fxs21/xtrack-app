@@ -7,8 +7,7 @@
  * is determined by the page's effective animation type.
  *
  * When released beyond 50% of the exit distance (with inertia
- * prediction), the page sends LV_EVENT_LEAVE which the application
- * should handle by calling pm_pop().
+ * prediction), the drag handler calls pm_pop() directly.
  */
 #include "pm_internal.h"
 #include "log.h"
@@ -46,19 +45,33 @@ static drag_axis_t pm_get_drag_axis(load_anim_t type)
     }
 }
 
-/* Getter/setter for the drag axis */
-static lv_coord_t (*drag_get_pos)(const lv_obj_t *);
-static void (*drag_set_pos)(lv_obj_t *, lv_coord_t);
+/* -- Position helpers (no static variables, operate on page->priv.drag) -- */
 
-static void drag_set_setter_getter(drag_axis_t axis)
+static lv_coord_t drag_get_pos(page_t *page)
 {
-    if (axis == DRAG_HOR) {
-        drag_get_pos = lv_obj_get_x;
-        drag_set_pos = lv_obj_set_x;
-    } else {
-        drag_get_pos = lv_obj_get_y;
-        drag_set_pos = lv_obj_set_y;
-    }
+    load_anim_t atype = page_anim_type(page);
+    return (pm_get_drag_axis(atype) == DRAG_HOR)
+               ? lv_obj_get_x(page->root)
+               : lv_obj_get_y(page->root);
+}
+
+static void drag_set_pos(page_t *page, lv_coord_t v)
+{
+    load_anim_t atype = page_anim_type(page);
+    if (pm_get_drag_axis(atype) == DRAG_HOR)
+        lv_obj_set_x(page->root, v);
+    else
+        lv_obj_set_y(page->root, v);
+}
+
+/* Wrapper for drag snap-back animations.  Distinct function pointer prevents
+ * lv_anim_del from accidentally matching PM animations that use the same
+ * underlying setter (lv_obj_set_x / lv_obj_set_y).  Retrieves the page via
+ * lv_obj_get_user_data (set by exec_load). */
+static void drag_anim_set_pos(lv_obj_t *obj, lv_coord_t v)
+{
+    page_t *page = (page_t *)lv_obj_get_user_data(obj);
+    drag_set_pos(page, v);
 }
 
 static void on_root_drag_anim_finish(lv_anim_t *a)
@@ -77,22 +90,12 @@ static void on_root_drag_anim_finish(lv_anim_t *a)
     }
 }
 
-static void on_root_async_leave(void *data)
-{
-    page_t *page = (page_t *)data;
-    if (page == NULL || page->root == NULL)
-        return;
-    lv_obj_send_event(page->root, LV_EVENT_LEAVE, page);
-}
-
 /* Compute drag bounds from the page's effective animation type.
    Returns true if drag is supported for this axis. */
 static bool compute_drag_bounds(page_t *page, int32_t *out_min,
                                 int32_t *out_max, int32_t *out_exit_off)
 {
-    lv_obj_t *scr = lv_scr_act();
-    if (scr == NULL)
-        return false;
+    lv_display_t *disp = lv_display_get_default();
 
     load_anim_t atype = page_anim_type(page);
     drag_axis_t axis  = pm_get_drag_axis(atype);
@@ -103,9 +106,9 @@ static bool compute_drag_bounds(page_t *page, int32_t *out_min,
 
     lv_coord_t dim;
     if (axis == DRAG_HOR) {
-        dim = lv_obj_get_width(scr);
+        dim = lv_display_get_horizontal_resolution(disp);
     } else {
-        dim = lv_obj_get_height(scr);
+        dim = lv_display_get_vertical_resolution(disp);
     }
     if (dim <= 0) {
         *out_min = *out_max = *out_exit_off = 0;
@@ -147,11 +150,6 @@ static bool compute_drag_bounds(page_t *page, int32_t *out_min,
     }
 }
 
-static int32_t clamp_i32(int32_t v, int32_t lo, int32_t hi)
-{
-    return (v < lo) ? lo : (v > hi) ? hi : v;
-}
-
 static void on_root_drag_event(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -159,8 +157,19 @@ static void on_root_drag_event(lv_event_t *e)
     page_t *page         = (page_t *)lv_event_get_user_data(e);
     page_manager_t *pm   = page->manager;
 
-    if (pm == NULL || !page->priv.drag_enabled)
+    if (pm == NULL || !page->priv.drag.is_enabled)
         return;
+
+    /* If the user was actually dragging (not a tap), consume the
+     * following CLICKED event so it doesn't reach the page's own
+     * click handler (e.g. on_info_click -> pm_push). */
+    if (code == LV_EVENT_CLICKED) {
+        if (page->priv.drag.is_dragged) {
+            page->priv.drag.is_dragged = false;
+            lv_event_stop_processing(e);
+        }
+        return;
+    }
 
     /* Only handle user gesture events */
     if (code != LV_EVENT_PRESSED && code != LV_EVENT_PRESSING &&
@@ -172,12 +181,19 @@ static void on_root_drag_event(lv_event_t *e)
         return;
 
     drag_axis_t axis = pm_get_drag_axis(page_anim_type(page));
-    drag_set_setter_getter(axis);
 
     if (code == LV_EVENT_PRESSED) {
-        /* Interrupt any running animation */
-        if (page->priv.anim.is_busy && exit_offset != 0) {
-            lv_anim_del(root, (lv_anim_exec_xcb_t)drag_set_pos);
+        /* Record press coordinate and current page offset */
+        lv_indev_get_point(lv_indev_get_act(), &page->priv.drag.press_pos);
+        page->priv.drag.page_pos = drag_get_pos(page);
+
+        /* Reset: we don't know yet if this press will turn into a drag */
+        page->priv.drag.is_dragged = false;
+
+        /* Interrupt a running snap-back animation.
+         * Only clean up busy_count if we actually deleted something.
+         * (Returns 0 when no drag animation existed, e.g. PM is running.) */
+        if (lv_anim_del(root, (lv_anim_exec_xcb_t)drag_anim_set_pos) > 0) {
             page->priv.anim.is_busy = false;
             if (pm->busy_count > 0)
                 pm->busy_count--;
@@ -194,21 +210,28 @@ static void on_root_drag_event(lv_event_t *e)
         if (exit_offset == 0)
             return;
 
-        lv_coord_t cur = drag_get_pos(root);
-        lv_point_t offset;
-        lv_indev_get_vect(lv_indev_get_act(), &offset);
-        if (axis == DRAG_HOR) {
-            cur += offset.x;
-        } else {
-            cur += offset.y;
-        }
-        cur = clamp_i32(cur, min_pos, max_pos);
-        drag_set_pos(root, cur);
+        lv_point_t current_pos;
+        lv_indev_get_point(lv_indev_get_act(), &current_pos);
+        lv_coord_t offset = (axis == DRAG_HOR)
+                                ? (current_pos.x - page->priv.drag.press_pos.x)
+                                : (current_pos.y - page->priv.drag.press_pos.y);
+        lv_coord_t target = page->priv.drag.page_pos + offset;
+        lv_coord_t clamped = LV_CLAMP(min_pos, target, max_pos);
+        drag_set_pos(page, clamped);
     } else if (code == LV_EVENT_RELEASED) {
         if (exit_offset == 0)
             return;
 
-        lv_coord_t start_pos = drag_get_pos(root);
+        lv_coord_t start_pos = drag_get_pos(page);
+
+        /* If already at the rest position (no actual drag), skip
+         * snap-back -- otherwise busy_count blocks any immediate push. */
+        if (start_pos == 0) {
+            return;
+        }
+
+        /* The user dragged -- suppress the CLICKED event that follows. */
+        page->priv.drag.is_dragged = true;
 
         /* Compute inertia prediction */
         lv_point_t vect;
@@ -224,25 +247,38 @@ static void on_root_drag_event(lv_event_t *e)
 
         lv_coord_t predicted_end = start_pos + predict;
 
-        /* If predicted end exceeds 50% of the exit distance, pop */
-        if (abs(predicted_end) > (exit_offset / 2)) {
-            lv_async_call(on_root_async_leave, page);
-        } else {
-            /* Snap back to rest position */
-            page->priv.anim.is_busy = true;
-            pm->busy_count++;
-
-            lv_anim_t a;
-            lv_anim_init(&a);
-            lv_anim_set_var(&a, root);
-            lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)drag_set_pos);
-            lv_anim_set_values(&a, start_pos, 0);
-            lv_anim_set_time(&a, page_anim_time(page));
-            lv_anim_set_path_cb(&a, page_anim_path(page));
-            lv_anim_set_ready_cb(&a, on_root_drag_anim_finish);
-            lv_anim_set_user_data(&a, page);
-            lv_anim_start(&a);
+        /* If predicted end exceeds 50% of the exit distance,
+         * and there is a page underneath to pop to, trigger pop. */
+        if (abs(predicted_end) > (exit_offset / 2) &&
+            pm->stack != NULL && pm->stack->next != NULL) {
+            LOG_I(TAG, "Page(%s) drag-pop triggered (pos=%d, pred=%d, thresh=%d)",
+                  page->name, (int)start_pos, (int)predicted_end,
+                  (int)(exit_offset / 2));
+            page->priv.drag.exit_pos = start_pos;
+            page->priv.drag.is_enabled = false; /* stop drag; PM animation takes over */
+            pm_pop(pm);
+            return;
         }
+
+        /* Snap back to rest position */
+        page->priv.anim.is_busy = true;
+        pm->busy_count++;
+
+        lv_anim_t a;
+        lv_anim_init(&a);
+        lv_anim_set_var(&a, root);
+        lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)drag_anim_set_pos);
+        lv_anim_set_values(&a, start_pos, 0);
+
+        uint16_t snap_time = page_anim_time(page);
+        if (exit_offset > 0)
+            snap_time = (uint16_t)((int64_t)snap_time * start_pos / exit_offset);
+        lv_anim_set_time(&a, snap_time);
+
+        lv_anim_set_path_cb(&a, page_anim_path(page));
+        lv_anim_set_ready_cb(&a, on_root_drag_anim_finish);
+        lv_anim_set_user_data(&a, page);
+        lv_anim_start(&a);
     }
 }
 
@@ -253,7 +289,7 @@ void pm_root_enable_drag(page_manager_t *pm, page_t *page)
     if (!pm || !page || !page->root)
         return;
 
-    page->priv.drag_enabled = true;
+    page->priv.drag.is_enabled = true;
     lv_obj_add_event_cb(page->root, on_root_drag_event, LV_EVENT_ALL, page);
     LOG_I(TAG, "Page(%s) root drag enabled", page->name);
 }

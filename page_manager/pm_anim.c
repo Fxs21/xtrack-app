@@ -294,6 +294,15 @@ void pm_anim_start(page_t *page)
         }
     }
 
+    /* If this is a pop-exit triggered by drag, start from the drag
+     * position instead of snapping back to the animation's default start. */
+    lv_coord_t orig_start = start_val;
+    lv_coord_t drag_start = page->priv.drag.exit_pos;
+    if (!page_enters && !is_push && drag_start != 0) {
+        page->priv.drag.exit_pos = 0; /* consume */
+        start_val = drag_start;
+    }
+
     if (start_val == end_val) {
         /* No visual change -- skip LVGL animation, advance state */
         if (page_enters) {
@@ -321,7 +330,18 @@ void pm_anim_start(page_t *page)
     lv_anim_set_var(&a, page->root);
     lv_anim_set_exec_cb(&a, setter);
     lv_anim_set_values(&a, start_val, end_val);
-    lv_anim_set_time(&a, page_anim_time(page));
+
+    uint16_t full_time = page_anim_time(page);
+    int32_t  full_dist = end_val - orig_start;
+    int32_t  rem_dist  = end_val - start_val;
+    if (full_dist != 0) {
+        uint32_t full_abs = (uint32_t)(full_dist < 0 ? -full_dist : full_dist);
+        uint32_t rem_abs  = (uint32_t)(rem_dist  < 0 ? -rem_dist  : rem_dist);
+        if (rem_abs < full_abs)
+            full_time = (uint16_t)((int64_t)full_time * rem_abs / full_abs);
+    }
+    lv_anim_set_time(&a, full_time);
+
     lv_anim_set_path_cb(&a, page_anim_path(page));
     lv_anim_set_ready_cb(&a, on_anim_finish);
     lv_anim_set_user_data(&a, page);

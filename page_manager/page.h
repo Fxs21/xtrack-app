@@ -130,9 +130,17 @@ struct page_t {
         bool is_cached;     /**< Root kept alive when not visible */
         bool force_cache;   /**< Always cache (overrides disable_auto_cache) */
         bool disable_auto_cache; /**< Opt out of auto-cache */
-        bool drag_enabled;       /**< Gesture-to-pop enabled */
 
         page_stash_t stash; /**< Incoming parameter from pm_push */
+
+        /** Per-page drag-to-pop state */
+        struct {
+            bool is_enabled;      /**< Gesture-to-pop enabled */
+            bool is_dragged;      /**< True when this press turned into a drag */
+            lv_point_t press_pos; /**< Pointer screen-coordinate at PRESSED */
+            lv_coord_t page_pos;  /**< Page offset at PRESSED (X for HOR drag, Y for VER drag) */
+            lv_coord_t exit_pos;  /**< Page offset when drag handed over to pop */
+        } drag;
 
         /** Per-page animation state (overrides PM global) */
         struct {

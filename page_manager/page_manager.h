@@ -173,11 +173,8 @@ void pm_set_root_default_style(page_manager_t *pm, lv_style_t *style);
  * @param  pm:   Pointer to the page manager
  * @param  page: Pointer to the page to enable drag on
  * @retval None
- * @note   The page must handle LV_EVENT_LEAVE on its root to call pm_pop().
- *         Example in on_load:
- *           lv_obj_add_event_cb(page->root, on_leave, LV_EVENT_LEAVE, page);
- *           where on_leave calls pm_pop(page->manager);
- *         Drag direction is determined by the page's animation type
+ * @note   The drag handler calls pm_pop() directly; no LV_EVENT_LEAVE
+ *         handler is needed.  Drag direction is determined by the page's animation type
  *         (horizontal for LEFT/RIGHT, vertical for TOP/BOTTOM).
  */
 void pm_root_enable_drag(page_manager_t *pm, page_t *page);
