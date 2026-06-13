@@ -9,8 +9,10 @@
  */
 #include "app.h"
 #include "data_proc/data_proc.h"
+#include "pages/startup/startup_page.h"
 #include "pages/dialplate/dialplate_page.h"
 #include "pages/system_infos/system_infos_page.h"
+#include "pages/livemap/livemap_page.h"
 #include "pages/status_bar/status_bar.h"
 #include "log.h"
 
@@ -28,6 +30,12 @@ void app_init(void)
      * beyond the screen boundary, the screen auto-corrects its child
      * positions, corrupting the drag offset.  Disable scroll entirely. */
     lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+
+    /* Set screen background to black. Without this, the default theme
+     * (or display background) shows through during page transitions —
+     * typically a white flash between unload and load.  Matches X-Track. */
+    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
 
     /* ---- DataCenter ---- */
     g_data_center = data_center_create();
@@ -52,8 +60,12 @@ void app_init(void)
     lv_style_set_width(&root_style, LV_HOR_RES);
     lv_style_set_height(&root_style, LV_VER_RES);
     lv_style_set_bg_opa(&root_style, LV_OPA_COVER);
-    lv_style_set_bg_color(&root_style, lv_color_hex(0x0d1117));
+    lv_style_set_bg_color(&root_style, lv_color_hex(0x000000));
     pm_set_root_default_style(&g_pm, &root_style);
+
+    static page_startup_t startup;
+    page_startup_init(&startup, g_data_center);
+    pm_install(&g_pm, &startup.base);
 
     static page_dialplate_t dialplate;
     page_dialplate_init(&dialplate);
@@ -63,5 +75,9 @@ void app_init(void)
     page_system_infos_init(&sysinfo);
     pm_install(&g_pm, &sysinfo.base);
 
-    pm_push(&g_pm, "Dialplate", NULL);
+    static page_livemap_t livemap;
+    page_livemap_init(&livemap, g_data_center);
+    pm_install(&g_pm, &livemap.base);
+
+    pm_push(&g_pm, "Startup", NULL);
 }

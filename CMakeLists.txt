@@ -60,6 +60,12 @@ set(PAGES_SOURCES
     pages/dialplate/dialplate_model.c
     pages/dialplate/dialplate_page.c
     pages/dialplate/dialplate_view.c
+    pages/livemap/livemap_model.c
+    pages/livemap/livemap_page.c
+    pages/livemap/livemap_view.c
+    pages/startup/startup_model.c
+    pages/startup/startup_page.c
+    pages/startup/startup_view.c
     pages/status_bar/status_bar.c
     pages/system_infos/system_infos_model.c
     pages/system_infos/system_infos_page.c
@@ -94,6 +100,8 @@ target_include_directories(lvgl-sim PRIVATE
     data_proc
     page_manager
     pages/dialplate
+    pages/livemap
+    pages/startup
     pages/status_bar
     pages/system_infos
     utils

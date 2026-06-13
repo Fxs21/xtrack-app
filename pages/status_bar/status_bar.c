@@ -37,6 +37,12 @@ static status_bar_ctx_t s_ctx;
 
 /* ---- LVGL event: update all display fields ---- */
 
+static void on_status_bar_hide_done(lv_anim_t *a)
+{
+    lv_obj_t *cont = (lv_obj_t *)lv_anim_get_user_data(a);
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_HIDDEN);
+}
+
 static void refresh_display(void)
 {
     char buf[64];
@@ -63,6 +69,47 @@ static int on_data_event(account_t *account, account_event_param_t *param)
 {
     (void)account;
 
+    /* Handle commands (Notify from other accounts) */
+    if (param->event == ACCOUNT_EVENT_NOTIFY) {
+        if (param->size == sizeof(status_bar_info_t)) {
+            status_bar_info_t *info = (status_bar_info_t *)param->data;
+            switch (info->cmd) {
+            case STATUS_BAR_CMD_APPEAR:
+                if (info->param.appear) {
+                    lv_obj_clear_flag(s_ctx.cont, LV_OBJ_FLAG_HIDDEN);
+                    /* Slide in from above */
+                    lv_anim_t a;
+                    lv_anim_init(&a);
+                    lv_anim_set_var(&a, s_ctx.cont);
+                    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+                    lv_anim_set_values(&a, -BAR_HEIGHT, 0);
+                    lv_anim_set_time(&a, 300);
+                    lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+                    lv_anim_start(&a);
+                    LOG_I(TAG, "StatusBar shown");
+                } else {
+                    lv_anim_t a;
+                    lv_anim_init(&a);
+                    lv_anim_set_var(&a, s_ctx.cont);
+                    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+                    lv_anim_set_values(&a, 0, -BAR_HEIGHT);
+                    lv_anim_set_time(&a, 200);
+                    lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+                    lv_anim_set_user_data(&a, s_ctx.cont);
+                    lv_anim_set_ready_cb(&a, on_status_bar_hide_done);
+                    lv_anim_start(&a);
+                    LOG_I(TAG, "StatusBar hidden");
+                }
+                return ACCOUNT_OK;
+
+            default:
+                return ACCOUNT_ERR_UNSUPPORTED;
+            }
+        }
+        return ACCOUNT_ERR_SIZE;
+    }
+
+    /* Handle published data (Clock / Power) */
     if (param->event != ACCOUNT_EVENT_PUB_PUBLISH)
         return ACCOUNT_ERR_UNSUPPORTED;
 
@@ -106,7 +153,7 @@ void status_bar_init(data_center_t *dc)
 
     s_ctx.cont = lv_obj_create(layer);
     lv_obj_set_size(s_ctx.cont, LV_HOR_RES, BAR_HEIGHT);
-    lv_obj_set_pos(s_ctx.cont, 0, 0);
+    lv_obj_set_pos(s_ctx.cont, 0, -BAR_HEIGHT); /* start above screen for slide-in */
     lv_obj_set_style_bg_color(s_ctx.cont, lv_color_hex(0x1c2128), 0);
     lv_obj_set_style_opa(s_ctx.cont, LV_OPA_90, 0);
     lv_obj_set_style_border_width(s_ctx.cont, 0, 0);
@@ -140,4 +187,7 @@ void status_bar_init(data_center_t *dc)
     refresh_display();
 
     LOG_I(TAG, "StatusBar initialised");
+
+    /* Start hidden — shown on STATUS_BAR_CMD_APPEAR from Startup */
+    lv_obj_add_flag(s_ctx.cont, LV_OBJ_FLAG_HIDDEN);
 }

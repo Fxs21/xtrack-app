@@ -251,6 +251,8 @@ void pm_anim_start(page_t *page)
             page->priv.state = PAGE_STATE_DID_DISAPPEAR;
         }
         pm_state_update(pm, page);
+        pm->is_switch_req = false;
+        LOG_I(TAG, "---- Page switch finished (no anim) ----");
         return;
     }
 
@@ -267,6 +269,8 @@ void pm_anim_start(page_t *page)
             page->priv.state = PAGE_STATE_DID_DISAPPEAR;
         }
         pm_state_update(pm, page);
+        pm->is_switch_req = false;
+        LOG_W(TAG, "Unknown anim type %d, switch cleared", atype);
         return;
     }
 

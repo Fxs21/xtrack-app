@@ -9,6 +9,12 @@
 #if 1
 
 /*====================
+ *  STDLIB
+ *====================*/
+/** Use C library sprintf so that %f formatting works in lv_label_set_text_fmt */
+#define LV_USE_STDLIB_SPRINTF   LV_STDLIB_CLIB
+
+/*====================
  *  HAL / PERIOD
  *====================*/
 #define LV_DEF_REFR_PERIOD 16  /* 1000/16 = 62.5 fps (default 33) */
@@ -92,6 +98,15 @@
     #define LV_SDL_DIRECT_EXIT      1
     #define LV_SDL_MOUSEWHEEL_MODE  LV_SDL_MOUSEWHEEL_MODE_ENCODER
 #endif
+
+/*====================
+ *  THEMES
+ *====================*/
+/** Disable default theme to remove borders/padding from all objects.
+ *  Pages control their own styling via root_default_style and on_load. */
+#define LV_USE_THEME_DEFAULT 0
+#define LV_USE_THEME_SIMPLE  0
+#define LV_USE_THEME_MONO    0
 
 /*====================
  *  DISABLE UNUSED FEATURES

@@ -22,6 +22,12 @@ typedef struct page_system_infos_t {
 
     system_infos_view_t view;   /**< UI widgets */
     system_infos_model_t model; /**< Data subscription */
+
+    lv_timer_t *timer;          /**< 1s update timer */
+    int   trip_time;            /**< Trip time (seconds) */
+    float max_speed;            /**< Max speed recorded */
+    float trip_distance;        /**< Trip distance (km) */
+    lv_obj_t *last_focus;       /**< Last focused icon (for click-to-pop) */
 } page_system_infos_t;
 
 /** Initialise the system infos page (Presenter) */
