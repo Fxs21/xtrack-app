@@ -72,6 +72,9 @@ set(PAGES_SOURCES
     pages/system_infos/system_infos_view.c
 )
 
+# === Resources ===
+file(GLOB RESOURCE_SOURCES resource/image/*.c)
+
 # === Data Structures ===
 set(DS_SOURCES
     utils/ds/dbl_buf.c
@@ -86,6 +89,7 @@ set(SOURCES
     ${DATA_PROC_SOURCES}
     ${PAGE_MANAGER_SOURCES}
     ${PAGES_SOURCES}
+    ${RESOURCE_SOURCES}
     ${DS_SOURCES}
 )
 
@@ -104,6 +108,7 @@ target_include_directories(lvgl-sim PRIVATE
     pages/startup
     pages/status_bar
     pages/system_infos
+    resource/image
     utils
     utils/ds
 )

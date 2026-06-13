@@ -15,6 +15,7 @@
  * properties (bg/font/border).
  */
 #include "system_infos_view.h"
+#include "images.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,7 +96,7 @@ static void on_icon_focus_event(lv_event_t *e)
 /* ---- Item creator ---- */
 
 static void item_create(system_infos_item_t *item, lv_obj_t *parent,
-                        const char *name, const char *emoji,
+                        const char *name, const lv_img_dsc_t *img_dsc,
                         const char *info_text)
 {
     lv_obj_t *cont = lv_obj_create(parent);
@@ -125,10 +126,10 @@ static void item_create(system_infos_item_t *item, lv_obj_t *parent,
     lv_obj_add_event_cb(icon, on_icon_focus_event, LV_EVENT_FOCUSED, NULL);
     lv_obj_add_event_cb(icon, on_icon_focus_event, LV_EVENT_DEFOCUSED, NULL);
 
-    /* Emoji */
-    lv_obj_t *img = lv_label_create(icon);
+    /* Image */
+    lv_obj_t *img = lv_img_create(icon);
     lv_obj_enable_style_refresh(false);
-    lv_label_set_text(img, emoji);
+    lv_img_set_src(img, img_dsc);
 
     /* Name */
     lv_obj_t *lbl = lv_label_create(icon);
@@ -204,21 +205,21 @@ void system_infos_view_create(system_infos_view_t *view, lv_obj_t *root)
     lv_obj_set_flex_align(root, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START,
                           LV_FLEX_ALIGN_CENTER);
 
-    item_create(&view->sport,   root, "Sport",   "\xF0\x9F\x9A\xB4",
+    item_create(&view->sport,   root, "Sport",   &bicycle,
                 "Total trip\nTotal time\nMax speed");
-    item_create(&view->gps,     root, "GPS",     "\xF0\x9F\x93\xA1",
+    item_create(&view->gps,     root, "GPS",     &map_location,
                 "Latitude\nLongitude\nAltitude\nCourse\nSpeed");
-    item_create(&view->mag,     root, "MAG",     "\xE2\x9A\xB2",
+    item_create(&view->mag,     root, "MAG",     &compass,
                 "Dir\nX\nY\nZ");
-    item_create(&view->imu,     root, "IMU",     "\xF0\x9F\xA6\xB0",
+    item_create(&view->imu,     root, "IMU",     &gyroscope,
                 "Step\nInfo");
-    item_create(&view->rtc,     root, "RTC",     "\xF0\x9F\x95\x90",
+    item_create(&view->rtc,     root, "RTC",     &time_info,
                 "Date\nTime");
-    item_create(&view->battery, root, "Battery", "\xF0\x9F\x94\x8B",
+    item_create(&view->battery, root, "Battery", &battery_info,
                 "Usage\nVoltage\nStatus");
-    item_create(&view->storage, root, "Storage", "\xF0\x9F\x92\xBE",
+    item_create(&view->storage, root, "Storage", &storage,
                 "Status\nSize\nType\nVersion");
-    item_create(&view->system,  root, "System",  "\xE2\x9A\x99",
+    item_create(&view->system,  root, "System",  &system_info,
                 "Firmware\nLVGL\nBoot\nCompiler\nBuild");
 }
 
