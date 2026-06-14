@@ -41,6 +41,9 @@ typedef struct {
 /** Create all dialplate widgets under root */
 void dialplate_view_create(dialplate_view_t *view, lv_obj_t *root);
 
+/** Switch record button image (start / pause / stop) */
+void dialplate_view_set_rec_img(lv_obj_t *btn_rec, const char *img_name);
+
 /** Destroy all dialplate widgets */
 void dialplate_view_delete(dialplate_view_t *view);
 

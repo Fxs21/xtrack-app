@@ -1,8 +1,9 @@
 /**
  * @file dialplate_view.c
- * @brief Dialplate View — X-Track style layout with stock LVGL fonts
+ * @brief Dialplate View — X-Track style layout with icon buttons
  */
 #include "dialplate_view.h"
+#include "resource_pool.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,31 +48,29 @@ static void sub_info_create(lv_obj_t *parent, dialplate_sub_info_t *info,
 }
 
 /* ================================================================
- *  Button helper
+ *  Button helper — image as background (X-Track pattern)
  * ================================================================ */
 
-static lv_obj_t *btn_create(lv_obj_t *parent, const char *label,
+static lv_obj_t *btn_create(lv_obj_t *parent, const char *img_name,
                             lv_coord_t x_ofs)
 {
+    const lv_img_dsc_t *img = resource_pool_get_image(img_name);
+    if (!img)
+        return NULL;
+
     lv_obj_t *obj = lv_obj_create(parent);
     lv_obj_remove_style_all(obj);
     lv_obj_set_size(obj, 40, 31);
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(obj, LV_ALIGN_CENTER, x_ofs, 0);
 
+    lv_obj_set_style_bg_img_src(obj, img, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(obj, COLOR_BTN_BG, 0);
     lv_obj_set_style_bg_color(obj, COLOR_BTN_PRS, LV_STATE_PRESSED);
     lv_obj_set_style_radius(obj, 9, 0);
     lv_obj_set_style_width(obj, 45, LV_STATE_PRESSED);
     lv_obj_set_style_height(obj, 25, LV_STATE_PRESSED);
-
-    /* Label inside button (text replaces image) */
-    lv_obj_t *lbl = lv_label_create(obj);
-    lv_label_set_text(lbl, label);
-    lv_obj_set_style_text_color(lbl, lv_color_white(), 0);
-    lv_obj_set_style_text_font(lbl, FONT_UNIT, 0);
-    lv_obj_center(lbl);
 
     return obj;
 }
@@ -129,9 +128,16 @@ void dialplate_view_create(dialplate_view_t *view, lv_obj_t *root)
     lv_obj_align_to(cont, view->bottom_info.cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
     view->btn_cont.cont = cont;
 
-    view->btn_cont.btn_map  = btn_create(cont, "\xF0\x9F\x93\x8D", -80);  /* map */
-    view->btn_cont.btn_rec  = btn_create(cont, "\xE2\xAD\x90", 0);        /* star */
-    view->btn_cont.btn_menu = btn_create(cont, "\xE2\x98\xB0", 80);       /* menu */
+    view->btn_cont.btn_map  = btn_create(cont, "locate", -80);
+    view->btn_cont.btn_rec  = btn_create(cont, "start",   0);
+    view->btn_cont.btn_menu = btn_create(cont, "menu",   80);
+}
+
+void dialplate_view_set_rec_img(lv_obj_t *btn_rec, const char *img_name)
+{
+    const lv_img_dsc_t *img = resource_pool_get_image(img_name);
+    if (img)
+        lv_obj_set_style_bg_img_src(btn_rec, img, 0);
 }
 
 void dialplate_view_delete(dialplate_view_t *view)

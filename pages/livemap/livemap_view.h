@@ -1,6 +1,6 @@
 /**
  * @file  livemap_view.h
- * @brief LiveMap View — skeleton with sport info overlay
+ * @brief LiveMap View — sport info with X-Track icons
  */
 #ifndef LIVEMAP_VIEW_H
 #define LIVEMAP_VIEW_H
@@ -14,6 +14,12 @@ typedef struct {
         lv_obj_t *label_speed;  /**< Current speed */
         lv_obj_t *label_alt;    /**< Altitude */
         lv_obj_t *label_sat;    /**< Satellites */
+
+        /* Icon + label rows (X-Track style) */
+        lv_obj_t *img_trip;
+        lv_obj_t *label_trip;
+        lv_obj_t *img_alarm;
+        lv_obj_t *label_time;
     } sport_info;
 } livemap_view_t;
 
