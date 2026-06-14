@@ -18,16 +18,25 @@
 #include "data_center/data_center.h"
 #include <stdbool.h>
 
+/* ---- Style constants (X-Track) ---- */
+
+typedef enum {
+    STATUS_BAR_STYLE_TRANSP,  /**< Transparent (map pages) */
+    STATUS_BAR_STYLE_BLACK,   /**< Semi-opaque black (normal pages) */
+} status_bar_style_t;
+
 /* ---- Commands (X-Track pattern) ---- */
 
 typedef enum {
-    STATUS_BAR_CMD_APPEAR,    /**< Show/hide the bar */
+    STATUS_BAR_CMD_APPEAR,      /**< Show/hide the bar */
+    STATUS_BAR_CMD_SET_STYLE,   /**< Switch between TRANSP / BLACK */
 } status_bar_cmd_t;
 
 typedef struct {
     status_bar_cmd_t cmd;
     union {
-        bool appear;           /**< true = show, false = hide */
+        bool appear;               /**< true = show, false = hide */
+        status_bar_style_t style;  /**< Style to apply */
     } param;
 } status_bar_info_t;
 
