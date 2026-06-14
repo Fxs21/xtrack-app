@@ -14,6 +14,7 @@
 #include "pages/system_infos/system_infos_page.h"
 #include "pages/livemap/livemap_page.h"
 #include "pages/status_bar/status_bar.h"
+#include "resource/resource_pool.h"
 #include "log.h"
 
 #define TAG "app"
@@ -29,13 +30,16 @@ void app_init(void)
      * mechanism fights with drag-to-pop: when drag moves a page root
      * beyond the screen boundary, the screen auto-corrects its child
      * positions, corrupting the drag offset.  Disable scroll entirely. */
-    lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(lv_screen_active(), LV_OBJ_FLAG_SCROLLABLE);
 
     /* Set screen background to black. Without this, the default theme
      * (or display background) shows through during page transitions —
      * typically a white flash between unload and load.  Matches X-Track. */
-    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_black(), 0);
+
+    /* ---- Resources ---- */
+    resource_pool_init();
 
     /* ---- DataCenter ---- */
     g_data_center = data_center_create();

@@ -15,7 +15,7 @@
  * properties (bg/font/border).
  */
 #include "system_infos_view.h"
-#include "images.h"
+#include "resource_pool.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,9 +96,12 @@ static void on_icon_focus_event(lv_event_t *e)
 /* ---- Item creator ---- */
 
 static void item_create(system_infos_item_t *item, lv_obj_t *parent,
-                        const char *name, const lv_img_dsc_t *img_dsc,
+                        const char *name, const char *img_name,
                         const char *info_text)
 {
+    const lv_img_dsc_t *img_dsc = resource_pool_get_image(img_name);
+    if (!img_dsc)
+        return;
     lv_obj_t *cont = lv_obj_create(parent);
     lv_obj_enable_style_refresh(false);
     lv_obj_remove_style_all(cont);
@@ -205,21 +208,21 @@ void system_infos_view_create(system_infos_view_t *view, lv_obj_t *root)
     lv_obj_set_flex_align(root, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START,
                           LV_FLEX_ALIGN_CENTER);
 
-    item_create(&view->sport,   root, "Sport",   &bicycle,
+    item_create(&view->sport,   root, "Sport",   "bicycle",
                 "Total trip\nTotal time\nMax speed");
-    item_create(&view->gps,     root, "GPS",     &map_location,
+    item_create(&view->gps,     root, "GPS",     "map_location",
                 "Latitude\nLongitude\nAltitude\nCourse\nSpeed");
-    item_create(&view->mag,     root, "MAG",     &compass,
+    item_create(&view->mag,     root, "MAG",     "compass",
                 "Dir\nX\nY\nZ");
-    item_create(&view->imu,     root, "IMU",     &gyroscope,
+    item_create(&view->imu,     root, "IMU",     "gyroscope",
                 "Step\nInfo");
-    item_create(&view->rtc,     root, "RTC",     &time_info,
+    item_create(&view->rtc,     root, "RTC",     "time_info",
                 "Date\nTime");
-    item_create(&view->battery, root, "Battery", &battery_info,
+    item_create(&view->battery, root, "Battery", "battery_info",
                 "Usage\nVoltage\nStatus");
-    item_create(&view->storage, root, "Storage", &storage,
+    item_create(&view->storage, root, "Storage", "storage",
                 "Status\nSize\nType\nVersion");
-    item_create(&view->system,  root, "System",  &system_info,
+    item_create(&view->system,  root, "System",  "system_info",
                 "Firmware\nLVGL\nBoot\nCompiler\nBuild");
 }
 
