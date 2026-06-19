@@ -13,7 +13,7 @@ void startup_view_create(startup_view_t *view, lv_obj_t *root)
     view->cont = lv_obj_create(root);
     lv_obj_remove_style_all(view->cont);
     lv_obj_clear_flag(view->cont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(view->cont, 110, 50);
+    lv_obj_set_size(view->cont, 140, 50);
     lv_obj_set_style_border_color(view->cont, COLOR_ORANGE, 0);
     lv_obj_set_style_border_side(view->cont, LV_BORDER_SIDE_BOTTOM, 0);
     lv_obj_set_style_border_width(view->cont, 3, 0);
@@ -23,8 +23,11 @@ void startup_view_create(startup_view_t *view, lv_obj_t *root)
     /* Logo label */
     view->label_logo = lv_label_create(view->cont);
     lv_label_set_text(view->label_logo, "X-TRACK");
+    lv_obj_set_style_text_font(view->label_logo, &lv_font_montserrat_32, 0);
     lv_obj_set_style_text_color(view->label_logo, lv_color_white(), 0);
     lv_obj_center(view->label_logo);
+    /* Save centered y before moving off-screen for animation */
+    lv_coord_t y_center = lv_obj_get_y(view->label_logo);
     /* Start below container so animation slides it up */
     lv_obj_set_y(view->label_logo, lv_obj_get_style_height(view->cont, 0));
 
@@ -47,7 +50,7 @@ void startup_view_create(startup_view_t *view, lv_obj_t *root)
     lv_anim_set_var(&a_label, view->label_logo);
     lv_anim_set_exec_cb(&a_label, (lv_anim_exec_xcb_t)lv_obj_set_y);
     lv_anim_set_values(&a_label, lv_obj_get_style_height(view->cont, 0),
-                       lv_obj_get_y(view->label_logo));
+                       y_center);
     lv_anim_set_time(&a_label, 500);
     lv_anim_set_path_cb(&a_label, lv_anim_path_ease_out);
     lv_anim_timeline_add(view->anim_timeline, 500, &a_label);

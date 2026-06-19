@@ -106,6 +106,34 @@ static void batt_charging_anim_start(lv_obj_t *obj)
 
 /* ---- Per-tick display update ---- */
 
+static void refresh_display(void)
+{
+    lv_label_set_text_fmt(s_ctx.label_sat, "%d", s_ctx.power.percentage > 50 ? 8 : 0);
+    lv_label_set_text_fmt(s_ctx.label_clock, "%02d:%02d",
+                          s_ctx.clock.hour, s_ctx.clock.minute);
+
+    lv_label_set_text_fmt(s_ctx.label_batt, "%d", s_ctx.power.percentage);
+
+    lv_obj_clear_state(s_ctx.img_sd, LV_STATE_DISABLED);
+
+    lv_coord_t h = lv_map(s_ctx.power.percentage, 0, 100, 0,
+                          lv_obj_get_style_height(s_ctx.img_batt, 0) - BATT_USAGE_H_OFFSET);
+    lv_obj_set_height(s_ctx.obj_usage, h);
+
+    if (s_ctx.power.is_charging) {
+        if (!s_ctx.is_charging_anim_active) {
+            s_ctx.is_charging_anim_active = true;
+            batt_charging_anim_start(s_ctx.obj_usage);
+        }
+    } else {
+        if (s_ctx.is_charging_anim_active) {
+            lv_anim_del(s_ctx.obj_usage, NULL);
+            batt_usage_set_opa(s_ctx.obj_usage, LV_OPA_COVER);
+            s_ctx.is_charging_anim_active = false;
+        }
+    }
+}
+
 static void on_timer(lv_timer_t *timer)
 {
     (void)timer;
@@ -116,14 +144,9 @@ static void on_timer(lv_timer_t *timer)
     if (account_pull(s_ctx.account, "GPS", &gps_info, sizeof(gps_info)) == ACCOUNT_OK)
         lv_label_set_text_fmt(s_ctx.label_sat, "%d", (int)gps_info.satellites);
 
-    lv_obj_clear_state(s_ctx.img_sd, LV_STATE_DISABLED);
-
-    if (account_pull(s_ctx.account, "Clock", &s_ctx.clock, sizeof(s_ctx.clock)) == ACCOUNT_OK)
-        lv_label_set_text_fmt(s_ctx.label_clock, "%02d:%02d",
-                              s_ctx.clock.hour, s_ctx.clock.minute);
-
     if (account_pull(s_ctx.account, "Power", &power, sizeof(power)) == ACCOUNT_OK) {
         s_ctx.power = power;
+
         lv_label_set_text_fmt(s_ctx.label_batt, "%d", power.percentage);
 
         lv_coord_t h = lv_map(power.percentage, 0, 100, 0,
@@ -158,15 +181,27 @@ static int on_data_event(account_t *account, account_event_param_t *param)
 {
     (void)account;
 
-    if (param->event != ACCOUNT_EVENT_NOTIFY)
-        return ACCOUNT_ERR_UNSUPPORTED;
+    /* Handle published data (Clock / Power) */
+    if (param->event == ACCOUNT_EVENT_PUB_PUBLISH) {
+        if (strcmp(param->tran->id, "Clock") == 0 && param->size == sizeof(hal_clock_info_t)) {
+            memcpy(&s_ctx.clock, param->data, sizeof(hal_clock_info_t));
+        } else if (strcmp(param->tran->id, "Power") == 0 && param->size == sizeof(hal_power_info_t)) {
+            memcpy(&s_ctx.power, param->data, sizeof(hal_power_info_t));
+        } else {
+            return ACCOUNT_ERR_UNSUPPORTED;
+        }
+        refresh_display();
+        return ACCOUNT_OK;
+    }
 
-    if (param->size != sizeof(status_bar_info_t))
-        return ACCOUNT_ERR_SIZE;
+    /* Handle Notify commands (APPEAR / SET_STYLE) */
+    if (param->event == ACCOUNT_EVENT_NOTIFY) {
+        if (param->size != sizeof(status_bar_info_t))
+            return ACCOUNT_ERR_SIZE;
 
-    status_bar_info_t *info = (status_bar_info_t *)param->data;
+        status_bar_info_t *info = (status_bar_info_t *)param->data;
 
-    switch (info->cmd) {
+        switch (info->cmd) {
     case STATUS_BAR_CMD_APPEAR: {
         lv_anim_t a;
         lv_anim_init(&a);
@@ -195,6 +230,9 @@ static int on_data_event(account_t *account, account_event_param_t *param)
         else
             lv_obj_add_state(s_ctx.cont, LV_STATE_USER_1);
         return ACCOUNT_OK;
+    }
+
+    return ACCOUNT_ERR_UNSUPPORTED;
     }
 
     return ACCOUNT_ERR_UNSUPPORTED;

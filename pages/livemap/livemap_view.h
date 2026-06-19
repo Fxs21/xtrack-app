@@ -1,6 +1,6 @@
 /**
  * @file  livemap_view.h
- * @brief LiveMap View — sport info with X-Track icons
+ * @brief LiveMap View — map background with sport info overlay (X-Track style)
  */
 #ifndef LIVEMAP_VIEW_H
 #define LIVEMAP_VIEW_H
@@ -9,21 +9,36 @@
 
 typedef struct {
     struct {
-        lv_obj_t *cont;
-        lv_obj_t *label_info;   /**< "Loading..." placeholder */
-        lv_obj_t *label_speed;  /**< Current speed */
-        lv_obj_t *label_alt;    /**< Altitude */
-        lv_obj_t *label_sat;    /**< Satellites */
+        lv_obj_t *cont;          /**< Dark semi-transparent container */
+        lv_obj_t *label_info;    /**< "LOADING..." placeholder */
 
-        /* Icon + label rows (X-Track style) */
+        /* Speed (left side) */
+        lv_obj_t *label_speed;   /**< Large speed number */
+        lv_obj_t *label_unit;    /**< "km/h" below speed */
+
+        /* Trip (right side, icon + label rows) */
         lv_obj_t *img_trip;
         lv_obj_t *label_trip;
         lv_obj_t *img_alarm;
         lv_obj_t *label_time;
     } sport_info;
+
+    /* Map area */
+    struct {
+        lv_obj_t *img_arrow;     /**< GPS direction arrow (centred) */
+    } map;
 } livemap_view_t;
 
 void livemap_view_create(livemap_view_t *view, lv_obj_t *root);
 void livemap_view_delete(livemap_view_t *view);
+
+/** Set speed value (e.g. "00") */
+void livemap_view_set_speed(livemap_view_t *view, const char *speed);
+
+/** Set trip distance (e.g. "0.0 km") */
+void livemap_view_set_trip(livemap_view_t *view, const char *trip);
+
+/** Set elapsed time (e.g. "00:00") */
+void livemap_view_set_time(livemap_view_t *view, const char *time);
 
 #endif /* LIVEMAP_VIEW_H */
