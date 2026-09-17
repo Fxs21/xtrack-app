@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "hal_sdl.h"
 
 lv_display_t *hal_init_display(int32_t w, int32_t h)
 {

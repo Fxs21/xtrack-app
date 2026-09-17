@@ -8,8 +8,9 @@
 #endif
 #include <unistd.h>
 
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 #include "hal/hal.h"
+#include "hal/hal_sdl.h"
 #include "app.h"
 #include "log.h"
 #include <stdio.h>
