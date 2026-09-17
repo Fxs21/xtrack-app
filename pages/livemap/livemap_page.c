@@ -18,12 +18,39 @@
 
 #define TAG "livemap"
 
+/* Pixel-per-degree scale: one degree ≈ 111 km, this gives ~22 m/px */
+#define PIXEL_PER_DEG 5000
+
+static void update_track(page_livemap_t *p)
+{
+    hal_gps_info_t *gps = &p->model.gps_info;
+    if (!gps->is_valid)
+        return;
+
+    if (!p->track.has_ref) {
+        p->track.ref_lat  = gps->latitude;
+        p->track.ref_lon  = gps->longitude;
+        p->track.origin_x = LV_HOR_RES / 2;
+        p->track.origin_y = LV_VER_RES / 2;
+        p->track.has_ref  = true;
+    }
+
+    lv_coord_t x = p->track.origin_x
+                   + (lv_coord_t)((gps->longitude - p->track.ref_lon) * PIXEL_PER_DEG);
+    lv_coord_t y = p->track.origin_y
+                   - (lv_coord_t)((gps->latitude - p->track.ref_lat) * PIXEL_PER_DEG);
+    lv_point_precise_t pt = {(lv_value_precise_t)x, (lv_value_precise_t)y};
+    livemap_view_add_track_point(&p->view, pt);
+}
+
 static void update_view(page_livemap_t *p)
 {
     hal_gps_info_t *gps = &p->model.gps_info;
     char buf[32];
 
     if (gps->is_valid) {
+        update_track(p);
+
         snprintf(buf, sizeof(buf), "%.0f", (double)gps->speed);
         livemap_view_set_speed(&p->view, buf);
     }
@@ -70,7 +97,7 @@ static void on_load(page_t *base)
 static void on_will_appear(page_t *base)
 {
     page_livemap_t *p = (page_livemap_t *)base;
-    status_bar_set_style(p->model.account, STATUS_BAR_STYLE_TRANSP);
+    status_bar_set_style(p->model.account, STATUS_BAR_STYLE_BLACK);
 }
 
 static void on_did_appear(page_t *base)
@@ -82,7 +109,7 @@ static void on_did_appear(page_t *base)
 static void on_did_disappear(page_t *base)
 {
     page_livemap_t *p = (page_livemap_t *)base;
-    status_bar_set_style(p->model.account, STATUS_BAR_STYLE_BLACK);
+    status_bar_set_style(p->model.account, STATUS_BAR_STYLE_TRANSP);
 }
 
 static void on_did_unload(page_t *base)

@@ -1,12 +1,12 @@
 /**
  * @file livemap_view.c
- * @brief LiveMap View — X-Track style map background + sport info overlay
+ * @brief LiveMap View — X-Track style with GPS track line
  *
  * Layout (X-Track):
  *   - White background (simulated map area)
+ *   - GPS track line (orange, 5px rounded)
  *   - GPS direction arrow (centred)
  *   - Sport info container (bottom-left): speed large left, trip/time icons right
- *   - Zoom control (top-right) — placeholder for now
  */
 #include "livemap_view.h"
 #include "resource_pool.h"
@@ -15,9 +15,23 @@
 
 void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
 {
+    memset(view, 0, sizeof(*view));
+
     /* White background (map area) */
     lv_obj_set_style_bg_color(root, lv_color_white(), 0);
     lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
+
+    /* ---- GPS track line (orange, drawn first for lower z-order) ---- */
+    static lv_style_t style_track;
+    lv_style_init(&style_track);
+    lv_style_set_line_color(&style_track, lv_color_hex(0xff931e));
+    lv_style_set_line_width(&style_track, 5);
+    lv_style_set_line_opa(&style_track, LV_OPA_COVER);
+    lv_style_set_line_rounded(&style_track, true);
+
+    view->map.line_track = lv_line_create(root);
+    lv_obj_remove_style_all(view->map.line_track);
+    lv_obj_add_style(view->map.line_track, &style_track, 0);
 
     /* ---- Center placeholder (shown while loading) ---- */
     view->sport_info.label_info = lv_label_create(root);
@@ -97,6 +111,24 @@ void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
                     view->sport_info.img_alarm, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
 }
 
+/* ---- Track management ---- */
+
+void livemap_view_add_track_point(livemap_view_t *view, lv_point_precise_t pt)
+{
+    if (view->track_count >= 512)
+        return;
+
+    view->track_points[view->track_count++] = pt;
+    lv_line_set_points(view->map.line_track, view->track_points,
+                       view->track_count);
+}
+
+void livemap_view_clear_track(livemap_view_t *view)
+{
+    view->track_count = 0;
+    lv_line_set_points(view->map.line_track, NULL, 0);
+}
+
 /* ---- Setters ---- */
 
 void livemap_view_set_speed(livemap_view_t *view, const char *speed)
@@ -127,5 +159,6 @@ void livemap_view_delete(livemap_view_t *view)
     lv_obj_delete(view->sport_info.cont);
     lv_obj_delete(view->sport_info.label_info);
     lv_obj_delete(view->map.img_arrow);
+    lv_obj_delete(view->map.line_track);
     memset(view, 0, sizeof(*view));
 }
