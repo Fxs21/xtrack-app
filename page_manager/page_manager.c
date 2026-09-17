@@ -9,6 +9,7 @@
  * Animation, state machine execution, and drag-to-pop are in separate
  * files: pm_anim.c, pm_state.c, pm_drag.c.
  */
+#include <inttypes.h>
 #include "pm_internal.h"
 #include "log.h"
 #include "uthash/utstack.h"
@@ -47,7 +48,7 @@ static bool pm_switch_to(page_manager_t *pm, page_t *prev, page_t *cur,
         if (cur->priv.stash.ptr == NULL) {
             buffer = malloc(stash->size);
             if (!buffer) {
-                LOG_E(TAG, "stash alloc failed (%u bytes)", stash->size);
+                LOG_E(TAG, "stash alloc failed (%" PRIu32 " bytes)", stash->size);
                 return false;
             }
         } else if (cur->priv.stash.size == stash->size) {
@@ -59,7 +60,7 @@ static bool pm_switch_to(page_manager_t *pm, page_t *prev, page_t *cur,
             cur->priv.stash.ptr = NULL;
             buffer = malloc(stash->size);
             if (!buffer) {
-                LOG_E(TAG, "stash realloc failed (%u bytes)", stash->size);
+                LOG_E(TAG, "stash realloc failed (%" PRIu32 " bytes)", stash->size);
                 return false;
             }
         }
@@ -67,7 +68,7 @@ static bool pm_switch_to(page_manager_t *pm, page_t *prev, page_t *cur,
         memcpy(buffer, stash->ptr, stash->size);
         cur->priv.stash.ptr  = buffer;
         cur->priv.stash.size = stash->size;
-        LOG_I(TAG, "stash copied (%u bytes) to Page(%s)", stash->size,
+        LOG_I(TAG, "stash copied (%" PRIu32 " bytes) to Page(%s)", stash->size,
               cur->name);
     }
 

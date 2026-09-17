@@ -2,6 +2,7 @@
  * @file page.c
  * @brief Page base implementation
  */
+#include <inttypes.h>
 #include "page.h"
 #include "log.h"
 #include <stdlib.h>
@@ -70,7 +71,7 @@ bool page_stash_pop(page_t *page, void *ptr, uint32_t size)
     }
 
     if (page->priv.stash.size != size) {
-        LOG_W(TAG, "Page(%s) stash pop: size mismatch (%u != %u)", page->name,
+        LOG_W(TAG, "Page(%s) stash pop: size mismatch (%" PRIu32 " != %" PRIu32 ")", page->name,
               page->priv.stash.size, size);
         return false;
     }

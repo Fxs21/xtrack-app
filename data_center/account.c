@@ -4,6 +4,7 @@
  *          commit/publish (broadcast), pull (lazy read), notify (one-to-one),
  *          callback and timer control
  */
+#include <inttypes.h>
 #include "data_center.h"
 #include "log.h"
 #include <string.h>
@@ -55,7 +56,7 @@ account_t *account_create(data_center_t *data_center, const char *id,
     if (buf_size > 0) {
         uint8_t *buf = (uint8_t *)malloc(buf_size * 2);
         if (!buf) {
-            LOG_E(TAG, "%s: malloc(%u) failed", id, buf_size * 2);
+            LOG_E(TAG, "%s: malloc(%" PRIu32 ") failed", id, buf_size * 2);
             account_destroy(account);
             return NULL;
         }
@@ -253,7 +254,7 @@ account_err_t account_pull(account_t *self, const char *pub_id, void *data,
     /* Fallback: read double buffer directly */
     if (publisher->priv.dbl_buf.size != 0) {
         if (publisher->priv.dbl_buf.size != size) {
-            LOG_E(TAG, "data size publisher[%s]:%u != subscriber[%s]:%u",
+            LOG_E(TAG, "data size publisher[%s]:%" PRIu32 " != subscriber[%s]:%" PRIu32 ",",
                   publisher->id, publisher->priv.dbl_buf.size, self->id, size);
             return ACCOUNT_ERR_SIZE;
         }

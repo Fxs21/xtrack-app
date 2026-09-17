@@ -9,6 +9,7 @@
  *   on_did_appear:     scroll to first item with animation
  *   on_did_disappear:  clear group (prevent history pollution)
  */
+#include <inttypes.h>
 #include "system_infos_page.h"
 #include "app.h"
 #include "page_manager/page_manager.h"
@@ -101,7 +102,8 @@ static void update_view(page_system_infos_t *p)
     system_infos_view_set_data(&p->view.imu, buf);
 
     uint32_t sec = lv_tick_get() / 1000;
-    snprintf(buf, sizeof(buf), "%04d-%02d-%02d\n%02d:%02d:%02d",
+    snprintf(buf, sizeof(buf),
+             "%04d-%02d-%02d\n%02" PRIu32 ":%02" PRIu32 ":%02" PRIu32,
              2026, 6, 12, (sec / 3600) % 24, (sec / 60) % 60, sec % 60);
     system_infos_view_set_data(&p->view.rtc, buf);
 
@@ -114,7 +116,7 @@ static void update_view(page_system_infos_t *p)
 
     uint32_t boot_sec = (lv_tick_get() - s_boot_tick) / 1000;
     snprintf(buf, sizeof(buf),
-             "v1.0\nLVGL 9.6\n%02d:%02d:%02d\nGCC\n2025-01-01",
+             "v1.0\nLVGL 9.6\n%02" PRIu32 ":%02" PRIu32 ":%02" PRIu32 "\nGCC\n2025-01-01",
              boot_sec / 3600, (boot_sec / 60) % 60, boot_sec % 60);
     system_infos_view_set_data(&p->view.system, buf);
 }
