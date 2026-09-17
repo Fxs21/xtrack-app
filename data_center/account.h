@@ -19,7 +19,7 @@
 #include <stddef.h>
 #include "dbl_buf.h"
 #include "vector.h"
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 
 #ifdef __cplusplus
 extern "C" {

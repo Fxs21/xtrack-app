@@ -23,7 +23,7 @@
 #ifndef PAGE_H
 #define PAGE_H
 
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 #include <stdbool.h>
 #include <stdint.h>
 

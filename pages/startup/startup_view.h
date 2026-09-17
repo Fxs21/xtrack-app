@@ -5,7 +5,7 @@
 #ifndef STARTUP_VIEW_H
 #define STARTUP_VIEW_H
 
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 
 typedef struct {
     lv_obj_t *cont;            /**< Centered container with bottom border */

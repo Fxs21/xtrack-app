@@ -5,7 +5,7 @@
 #ifndef SYSTEM_INFOS_VIEW_H
 #define SYSTEM_INFOS_VIEW_H
 
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 
 typedef struct {
     lv_obj_t *cont;         /**< Card container */

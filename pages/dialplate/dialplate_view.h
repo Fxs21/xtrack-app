@@ -10,7 +10,7 @@
 #ifndef DIALPLATE_VIEW_H
 #define DIALPLATE_VIEW_H
 
-#include "lvgl/lvgl.h"
+#include <lvgl.h>
 
 typedef struct {
     lv_obj_t *cont;
