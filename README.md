@@ -70,6 +70,15 @@ idf.py -p /dev/ttyACM0 flash monitor
 
 所以"PC 上能编、板子上编不过"的第一嫌疑永远是**字体/功能开关不同源**。
 
+### 两侧的 LVGL 版本必须一起升
+
+实测(2026-09-17):PC 侧子模块(commit `85aa60d`)与板子侧 registry 包(`lvgl/lvgl` 9.5.0)的 `src/` 源码树**逐字节相同**(1130 个文件,0 个不同),`lvgl.h` 与 `lv_conf_template.h` 的 md5 也相同,版本宏两边都是 9.5.0。差异只在打包外围:板子侧多 `CHECKSUMS.json` / `.component_hash`,PC 侧多 `.github`,`idf_component.yml` 两边不同 —— 这些都不参与编译。
+
+**`git describe` 不能当版本依据**:LVGL 的 `v9.5.0` 标签打在 release 分支上,不在 master 那批 commit 的祖先链里,所以子模块的 `git describe` 会报 `v9.3.0-992-g85aa60d18`,看起来像"落后两个版本",实际内容就是 9.5.0。
+
+规则:**升 LVGL 时两侧一起升,并把 PC 侧子模块钉到与 registry 相同的那一个 tag**。否则上面说的 `"lvgl/lvgl.h"` 写法会让 App 的编译单元静默地用上另一份头文件,变成"不报错但行为诡异"。
+
+
 还有一条:`uint32_t` 在 xtensa 上是 `unsigned long`,日志里的格式符一律用 `<inttypes.h>` 的 `PRIu32` 系列,不要用 `%u`/`%d`(IDF 默认 `-Werror=all`,直接编不过)。
 
 ## 资源流水线
