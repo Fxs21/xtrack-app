@@ -94,7 +94,7 @@ idf.py -p /dev/ttyACM0 flash monitor
 
 ## 已知限制 / 下一步
 
-- **布局**:按 PC 的 480x320 横屏设计。AuraS3 是 466x466 方屏,以下位置需要适配:`pages/dialplate` 的 `LV_ALIGN_TOP_MID` 偏移与信息卡尺寸、`pages/system_infos` 的 `ITEM_PAD = (LV_VER_RES - 100) / 2` 与 `CARD_W` / `ICON_W`。宽度方向大多已用 `LV_HOR_RES` 自适应。
+- **布局**:按 PC 的 480x320 横屏设计,而目标是 **AuraS3 的圆形 AMOLED(直径 466,内接安全区只有约 330x330,四周各留约 68px)**。可用宽度随高度剧变(y=0 处 `0` px、y=25 处约 `210` px、y=106 处约 `391` px、中心行 `466` px),所以现在这些"全宽横条"在圆屏上会被裁,顶部最严重:`pages/status_bar` 的 25px 全宽条、`pages/dialplate` 的顶部与底部数据带。需要适配的还有 `pages/dialplate` 的 `LV_ALIGN_TOP_MID` 偏移与信息卡尺寸、`pages/system_infos` 的 `ITEM_PAD = (LV_VER_RES - 100) / 2` 与 `CARD_W` / `ICON_W`。注意 `LV_HOR_RES` 在圆屏上只是"最宽处"的宽度,不代表任意高度的可用宽度。
 - **输入模型**:PC 是鼠标拖动 + 滚轮(滚轮被映射成 encoder,用于组内焦点导航);板子是电容触摸,没有旋钮编码器。需要定案:触摸点击可用,拖动返回需要实测阈值,滚轮/键盘导航在板子上不可达。
 - **拖动返回**:`pm_root_enable_drag()` 目前**没有任何页面启用**。`dialplate` 曾经启用,但它是栈底页(startup `pm_replace` 进来的),没有可返回的页面,`pm_pop()` 也会以 "only root page remains" 拒绝,所以调用已移除。待定的问题:该把拖动挂到 `livemap` / `system_infos`(它们下面有 `dialplate`),以及用什么轴。
   注意轴向不是独立配置:`pm_drag.c` 的 `pm_get_drag_axis()` 由页面动画类型推出(LEFT/RIGHT → 横向,TOP/BOTTOM → 纵向),而全局动画目前是 `app.c` 的 `LOAD_ANIM_OVER_TOP`(纵向)。要做"左右滑动返回",必须同时把全局动画改成横向,否则会出现"往右拖、页面往下退出"。

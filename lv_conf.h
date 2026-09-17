@@ -14,6 +14,11 @@
 /** Use C library sprintf so that %f formatting works in lv_label_set_text_fmt */
 #define LV_USE_STDLIB_SPRINTF   LV_STDLIB_CLIB
 
+/** PC simulator: use libc malloc instead of LVGL's built-in pool, so full-screen
+ *  allocations (snapshot of a 466x466 ARGB8888 frame ≈ 868 KB) can succeed.
+ *  Board builds use Kconfig and are unaffected. */
+#define LV_USE_STDLIB_MALLOC    LV_STDLIB_CLIB
+
 /*====================
  *  HAL / PERIOD
  *====================*/
@@ -107,6 +112,13 @@
 #define LV_USE_THEME_DEFAULT 0
 #define LV_USE_THEME_SIMPLE  0
 #define LV_USE_THEME_MONO    0
+
+/*====================
+ *  PROTOTYPE (throwaway)
+ *====================*/
+/** Snapshot API — used by the simulator's scripted screenshot channel
+ *  (PROTO_SHOT env var in main.c) to export frames for layout review. */
+#define LV_USE_SNAPSHOT 1
 
 /*====================
  *  DISABLE UNUSED FEATURES
