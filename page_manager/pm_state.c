@@ -14,8 +14,6 @@
 
 #define TAG "page_manager"
 
-/* -- State executors -- */
-
 static void exec_load(page_t *page)
 {
     LOG_I(TAG, "Page(%s) load", page->name);
@@ -138,8 +136,6 @@ static void exec_unload(page_t *page)
 
     page->priv.state = PAGE_STATE_IDLE;
 }
-
-/* -- State machine dispatcher -- */
 
 void pm_state_update(page_manager_t *pm, page_t *page)
 {

@@ -22,8 +22,6 @@
 data_center_t *g_data_center = NULL;
 page_manager_t g_pm;
 
-/* ---- App init ---- */
-
 void app_init(void)
 {
     /* Disable scrolling on the default screen.  LVGL's built-in scroll
@@ -38,23 +36,18 @@ void app_init(void)
     lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_black(), 0);
 
-    /* ---- Resources ---- */
     resource_pool_init();
 
-    /* ---- DataCenter ---- */
     g_data_center = data_center_create();
     if (!g_data_center) {
         LOG_E(TAG, "data_center_create failed");
         return;
     }
 
-    /* ---- DataProc ---- */
     data_proc_init(g_data_center);
 
-    /* ---- Status bar (top-layer overlay) ---- */
     status_bar_init(g_data_center);
 
-    /* ---- PageManager ---- */
     pm_init(&g_pm);
     pm_set_global_anim(&g_pm, LOAD_ANIM_OVER_TOP, 500, lv_anim_path_ease_out);
 

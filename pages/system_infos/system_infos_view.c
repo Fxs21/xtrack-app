@@ -93,8 +93,6 @@ static void on_icon_focus_event(lv_event_t *e)
     }
 }
 
-/* ---- Item creator ---- */
-
 static void item_create(system_infos_item_t *item, lv_obj_t *parent,
                         const char *name, const char *img_name,
                         const char *info_text)
@@ -165,8 +163,6 @@ static void item_create(system_infos_item_t *item, lv_obj_t *parent,
     lv_obj_set_height(icon, h);
 }
 
-/* ---- Group setup / teardown ---- */
-
 void system_infos_view_group_init(system_infos_view_t *view, lv_group_t *g)
 {
     if (!g)
@@ -196,8 +192,6 @@ void system_infos_view_group_deinit(system_infos_view_t *view, lv_group_t *g)
     for (int i = 0; i < n; i++)
         lv_group_remove_obj(items[i].icon);
 }
-
-/* ---- Public API ---- */
 
 void system_infos_view_create(system_infos_view_t *view, lv_obj_t *root)
 {

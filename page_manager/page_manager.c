@@ -18,8 +18,6 @@
 
 #define TAG "page_manager"
 
-/* -- Page pool lookup -- */
-
 static page_t *pm_find_entry(page_manager_t *pm, const char *name)
 {
     for (int i = 0; i < pm->page_pool.count; i++) {
@@ -29,8 +27,6 @@ static page_t *pm_find_entry(page_manager_t *pm, const char *name)
     }
     return NULL;
 }
-
-/* -- Switch-to: set up prev/cur, copy stash, drive state machine -- */
 
 static bool pm_switch_to(page_manager_t *pm, page_t *prev, page_t *cur,
                          bool is_push, const page_stash_t *stash)
@@ -116,8 +112,6 @@ static bool pm_switch_to(page_manager_t *pm, page_t *prev, page_t *cur,
     return true;
 }
 
-/* -- Public API: lifecycle -- */
-
 void pm_init(page_manager_t *pm)
 {
     if (!pm)
@@ -164,8 +158,6 @@ void pm_install(page_manager_t *pm, page_t *page)
     LOG_I(TAG, "Page(%s) installed", name);
 }
 
-/* -- Public API: configuration -- */
-
 void pm_set_global_anim(page_manager_t *pm, load_anim_t anim, uint16_t time,
                         lv_anim_path_cb_t path)
 {
@@ -185,8 +177,6 @@ void pm_set_root_default_style(page_manager_t *pm, lv_style_t *style)
     pm->root_default_style = style;
 }
 
-/* -- Public API: queries -- */
-
 page_t *pm_top(page_manager_t *pm)
 {
     if (!pm || !pm->stack)
@@ -203,8 +193,6 @@ int pm_depth(page_manager_t *pm)
     STACK_COUNT(pm->stack, tmp, count);
     return count;
 }
-
-/* -- Public API: operations -- */
 
 bool pm_push(page_manager_t *pm, const char *name,
              const page_stash_t *stash)

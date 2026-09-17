@@ -8,8 +8,6 @@
 
 #define TAG "dialplate_model"
 
-/* ---- Internal: DataCenter event callback ---- */
-
 static int on_model_event(account_t *account, account_event_param_t *param)
 {
     dialplate_model_t *m = (dialplate_model_t *)account->user_data;
@@ -35,8 +33,6 @@ static int on_model_event(account_t *account, account_event_param_t *param)
 
     return ACCOUNT_OK;
 }
-
-/* ---- Public API ---- */
 
 void dialplate_model_init(dialplate_model_t *m, data_center_t *dc)
 {

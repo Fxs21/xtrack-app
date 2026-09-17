@@ -25,10 +25,6 @@
 static uint32_t s_boot_tick = 0;
 static int s_mag_tick = 0;
 
-/* ================================================================
- *  Group focus callback: scroll to focused item
- * ================================================================ */
-
 static void on_focus_cb(lv_group_t *g)
 {
     lv_obj_t *icon = lv_group_get_focused(g);
@@ -38,10 +34,6 @@ static void on_focus_cb(lv_group_t *g)
     lv_coord_t y   = lv_obj_get_y(cont);
     lv_obj_scroll_to_y(lv_obj_get_parent(cont), y, LV_ANIM_ON);
 }
-
-/* ================================================================
- *  Event: item press — first press focuses, second press pops
- * ================================================================ */
 
 static void on_item_press(lv_event_t *e)
 {
@@ -65,10 +57,6 @@ static void on_root_click(lv_event_t *e)
     page_t *page = (page_t *)lv_event_get_user_data(e);
     pm_pop(page->manager);
 }
-
-/* ================================================================
- *  Data update
- * ================================================================ */
 
 static void update_view(page_system_infos_t *p)
 {
@@ -134,10 +122,6 @@ static void on_timer(lv_timer_t *timer)
         p->max_speed = p->model.gps_info.speed;
     update_view(p);
 }
-
-/* ================================================================
- *  Page lifecycle
- * ================================================================ */
 
 static void on_load(page_t *base)
 {
@@ -219,10 +203,6 @@ static void on_did_unload(page_t *base)
     system_infos_model_deinit(&p->model);
     system_infos_view_delete(&p->view);
 }
-
-/* ================================================================
- *  Public API
- * ================================================================ */
 
 void page_system_infos_init(page_system_infos_t *p)
 {

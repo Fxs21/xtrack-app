@@ -13,8 +13,6 @@
 
 #define TAG "account"
 
-/* ==== Timer callback ==== */
-
 static void timer_cb(lv_timer_t *timer)
 {
     account_t *account = (account_t *)lv_timer_get_user_data(timer);
@@ -32,8 +30,6 @@ static void timer_cb(lv_timer_t *timer)
     param.size  = 0;
     account->priv.callback(account, &param);
 }
-
-/* ==== Account lifecycle ==== */
 
 account_t *account_create(data_center_t *data_center, const char *id,
                           uint32_t buf_size, void *user_data)
@@ -114,8 +110,6 @@ void account_destroy(account_t *account)
     LOG_I(TAG, "Account[%s] deleted", account->id);
     free(account);
 }
-
-/* ==== Account API ==== */
 
 account_t *account_subscribe(account_t *self, const char *pub_id)
 {

@@ -7,7 +7,6 @@ typedef struct {
     const void *ptr;
 } resource_entry_t;
 
-/* ---- Image table ---- */
 #define IMG_ENTRY(name) {#name, &name}
 
 static const resource_entry_t s_images[] = {
@@ -37,7 +36,6 @@ static const resource_entry_t s_images[] = {
     {NULL, NULL},
 };
 
-/* ---- Lookup ---- */
 static const resource_entry_t *find_entry(const resource_entry_t *table,
                                           const char *name)
 {
@@ -49,7 +47,6 @@ static const resource_entry_t *find_entry(const resource_entry_t *table,
     return NULL;
 }
 
-/* ---- Public API ---- */
 void resource_pool_init(void)
 {
     /* Nothing needed at init — table is compiled-in */

@@ -14,13 +14,9 @@
 
 #define TAG "data_proc"
 
-/* ---- Generate extern declarations for all node init functions ---- */
-
 #define ENTRY(id, buf_size, init_fn) extern void init_fn(account_t *account);
 #include "dp_list.inc"
 #undef ENTRY
-
-/* ---- Registration table (const, in rodata) ---- */
 
 typedef struct {
     const char *name;
@@ -33,8 +29,6 @@ static const dp_node_def_t s_nodes[] = {
 #include "dp_list.inc"
 #undef ENTRY
 };
-
-/* ---- Initialisation ---- */
 
 void data_proc_init(data_center_t *dc)
 {

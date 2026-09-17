@@ -21,7 +21,6 @@ void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
     lv_obj_set_style_bg_color(root, lv_color_white(), 0);
     lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
 
-    /* ---- GPS track line (orange, drawn first for lower z-order) ---- */
     static lv_style_t style_track;
     lv_style_init(&style_track);
     lv_style_set_line_color(&style_track, lv_color_hex(0xff931e));
@@ -33,7 +32,6 @@ void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
     lv_obj_remove_style_all(view->map.line_track);
     lv_obj_add_style(view->map.line_track, &style_track, 0);
 
-    /* ---- Center placeholder (shown while loading) ---- */
     view->sport_info.label_info = lv_label_create(root);
     lv_obj_set_style_text_font(view->sport_info.label_info,
                                &lv_font_montserrat_16, 0);
@@ -42,13 +40,11 @@ void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
     lv_label_set_text(view->sport_info.label_info, "LOADING...");
     lv_obj_center(view->sport_info.label_info);
 
-    /* ---- GPS direction arrow (centred on map) ---- */
     view->map.img_arrow = lv_img_create(root);
     lv_img_set_src(view->map.img_arrow,
                    resource_pool_get_image("gps_arrow_dark"));
     lv_obj_center(view->map.img_arrow);
 
-    /* ---- Sport info container (bottom-left) ---- */
     lv_obj_t *cont = lv_obj_create(root);
     lv_obj_remove_style_all(cont);
 
@@ -111,8 +107,6 @@ void livemap_view_create(livemap_view_t *view, lv_obj_t *root)
                     view->sport_info.img_alarm, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
 }
 
-/* ---- Track management ---- */
-
 void livemap_view_add_track_point(livemap_view_t *view, lv_point_precise_t pt)
 {
     if (view->track_count >= 512)
@@ -129,8 +123,6 @@ void livemap_view_clear_track(livemap_view_t *view)
     lv_line_set_points(view->map.line_track, NULL, 0);
 }
 
-/* ---- Setters ---- */
-
 void livemap_view_set_speed(livemap_view_t *view, const char *speed)
 {
     lv_label_set_text(view->sport_info.label_speed, speed);
@@ -145,8 +137,6 @@ void livemap_view_set_time(livemap_view_t *view, const char *time)
 {
     lv_label_set_text(view->sport_info.label_time, time);
 }
-
-/* ---- Delete ---- */
 
 void livemap_view_delete(livemap_view_t *view)
 {

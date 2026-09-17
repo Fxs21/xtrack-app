@@ -60,8 +60,6 @@ static void update_view(page_livemap_t *p)
     livemap_view_set_time(&p->view, "00:00");
 }
 
-/* ---- Send command to StatusBar ---- */
-
 static void status_bar_set_style(account_t *sender, status_bar_style_t style)
 {
     status_bar_info_t info;
@@ -71,15 +69,11 @@ static void status_bar_set_style(account_t *sender, status_bar_style_t style)
     account_notify(sender, "StatusBar", &info, sizeof(info));
 }
 
-/* ---- Event: tap to pop ---- */
-
 static void on_click_pop(lv_event_t *e)
 {
     page_t *page = (page_t *)lv_event_get_user_data(e);
     pm_pop(page->manager);
 }
-
-/* ---- Lifecycle ---- */
 
 static void on_load(page_t *base)
 {
@@ -118,10 +112,6 @@ static void on_did_unload(page_t *base)
     livemap_model_deinit(&p->model);
     livemap_view_delete(&p->view);
 }
-
-/* ================================================================
- *  Public API
- * ================================================================ */
 
 void page_livemap_init(page_livemap_t *p, data_center_t *dc)
 {

@@ -16,8 +16,6 @@
 
 #define TAG "page_manager"
 
-/* -- Per-page animation parameter resolution -- */
-
 load_anim_t page_anim_type(page_t *page)
 {
     if (page->priv.anim.override.active)
@@ -41,8 +39,6 @@ lv_anim_path_cb_t page_anim_path(page_t *page)
     return page->manager->anim_path ? page->manager->anim_path
                                     : lv_anim_path_ease_out;
 }
-
-/* -- Animation attribute table -- */
 
 typedef struct pm_anim_attr_t {
     bool is_slide; /* false = opacity animation */
@@ -68,7 +64,6 @@ static bool pm_get_anim_attr(load_anim_t type, lv_coord_t hor, lv_coord_t ver,
     memset(out_attr, 0, sizeof(*out_attr));
 
     switch (type) {
-    /* -- OVER (cover) -- */
     case LOAD_ANIM_OVER_LEFT:
         out_attr->is_slide         = true;
         out_attr->is_hor           = true;
@@ -121,7 +116,6 @@ static bool pm_get_anim_attr(load_anim_t type, lv_coord_t hor, lv_coord_t ver,
         out_attr->pop_exit_end     = VER_NEG(ver);
         return true;
 
-    /* -- MOVE (push/pull) -- */
     case LOAD_ANIM_MOVE_LEFT:
         out_attr->is_slide         = true;
         out_attr->is_hor           = true;
@@ -174,7 +168,6 @@ static bool pm_get_anim_attr(load_anim_t type, lv_coord_t hor, lv_coord_t ver,
         out_attr->pop_exit_end     = VER_NEG(ver);
         return true;
 
-    /* -- Fade -- */
     case LOAD_ANIM_FADE_ON:
         out_attr->is_slide         = false;
         out_attr->push_enter_start = OPA_T;
@@ -208,8 +201,6 @@ static bool pm_get_anim_attr(load_anim_t type, lv_coord_t hor, lv_coord_t ver,
     }
 }
 
-/* -- Animation completion callback -- */
-
 static void on_anim_finish(lv_anim_t *a)
 {
     page_t *page       = (page_t *)lv_anim_get_user_data(a);
@@ -235,8 +226,6 @@ static void on_anim_finish(lv_anim_t *a)
         LOG_I(TAG, "---- Page switch finished ----");
     }
 }
-
-/* -- Unified animation starter -- */
 
 void pm_anim_start(page_t *page)
 {

@@ -17,10 +17,6 @@
 
 #define TAG "startup"
 
-/* ================================================================
- *  Timer callback: auto-proceed to Dialplate
- * ================================================================ */
-
 static void on_timer_cb(lv_timer_t *timer)
 {
     page_t *page = (page_t *)lv_timer_get_user_data(timer);
@@ -30,10 +26,6 @@ static void on_timer_cb(lv_timer_t *timer)
     LOG_I(TAG, "Startup timer fired, replacing with Dialplate");
     pm_replace(page->manager, "Dialplate", NULL);
 }
-
-/* ================================================================
- *  Lifecycle callbacks
- * ================================================================ */
 
 static void on_load(page_t *page)
 {
@@ -80,10 +72,6 @@ static void on_unload(page_t *page)
     startup_view_delete(&p->view);
     startup_model_deinit(&p->model);
 }
-
-/* ================================================================
- *  Page init
- * ================================================================ */
 
 static const page_vtable_t startup_vtable = {
     .on_load        = on_load,

@@ -32,10 +32,6 @@ typedef struct {
     bool  has_prev_pos;        /**< Whether prev_lat/lon are valid */
 } dialplate_priv_t;
 
-/* ================================================================
- *  Data bridge: Model -> View
- * ================================================================ */
-
 static void update_sport_info(page_dialplate_t *p, dialplate_priv_t *priv)
 {
     hal_gps_info_t *gps = &p->model.gps_info;
@@ -87,10 +83,6 @@ static void on_position_change(page_dialplate_t *p, dialplate_priv_t *priv)
     priv->has_prev_pos = true;
 }
 
-/* ================================================================
- *  Model event callback: called when DataProc publishes
- * ================================================================ */
-
 static int on_data_arrived(dialplate_model_t *m, account_event_param_t *param)
 {
     page_dialplate_t *p =
@@ -103,10 +95,6 @@ static int on_data_arrived(dialplate_model_t *m, account_event_param_t *param)
 
     return ACCOUNT_OK;
 }
-
-/* ================================================================
- *  Sport info timer: update computed fields periodically
- * ================================================================ */
 
 static void on_sport_timer(lv_timer_t *timer)
 {
@@ -132,10 +120,6 @@ static void on_sport_timer(lv_timer_t *timer)
     update_sport_info(p, priv);
 }
 
-/* ================================================================
- *  LVGL events
- * ================================================================ */
-
 static void on_map_click(lv_event_t *e)
 {
     page_dialplate_t *p = (page_dialplate_t *)lv_event_get_user_data(e);
@@ -148,10 +132,6 @@ static void on_menu_click(lv_event_t *e)
     pm_push(p->base.manager, "SystemInfos", NULL);
 }
 
-/* ================================================================
- *  Page lifecycle
- * ================================================================ */
-
 static void on_load(page_t *base)
 {
     page_dialplate_t *p = (page_dialplate_t *)base;
@@ -162,28 +142,23 @@ static void on_load(page_t *base)
     memset(priv, 0, sizeof(*priv));
     base->user_data = priv;
 
-    /* ---- View: create widgets ---- */
     dialplate_view_create(&p->view, root);
 
-    /* ---- Model: create Account, subscribe to Clock + GPS ---- */
     dialplate_model_init(&p->model, g_data_center);
 
     /* Hook up event callback — fires on every publish */
     p->model.event_cb = on_data_arrived;
 
-    /* ---- Initial data pull ---- */
     dialplate_model_pull_clock(&p->model);
     dialplate_model_pull_gps(&p->model);
     update_sport_info(p, priv);
 
-    /* ---- Periodic sport info update timer ---- */
     priv->timer = lv_timer_create(on_sport_timer, SPORT_UPDATE_MS, p);
 
     /* No drag-to-pop here: Dialplate is the bottom page of the stack
      * (startup pm_replace()s into it), so there is nothing to pop back to.
      * pm_pop() would refuse anyway (see pm_state: "only root page remains"). */
 
-    /* ---- Button events ---- */
     lv_obj_add_event_cb(p->view.btn_cont.btn_map, on_map_click,
                         LV_EVENT_CLICKED, p);
     lv_obj_add_event_cb(p->view.btn_cont.btn_menu, on_menu_click,
@@ -206,10 +181,6 @@ static void on_did_unload(page_t *base)
     free(priv);
     base->user_data = NULL;
 }
-
-/* ================================================================
- *  Public API
- * ================================================================ */
 
 void page_dialplate_init(page_dialplate_t *p)
 {

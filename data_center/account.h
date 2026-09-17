@@ -25,13 +25,9 @@
 extern "C" {
 #endif
 
-/* ==== forward declarations ==== */
-
 typedef struct data_center_t data_center_t;
 
 typedef struct account_t account_t;
-
-/* ==== event type ==== */
 
 typedef enum {
     ACCOUNT_EVENT_NONE,        /**< No event */
@@ -42,8 +38,6 @@ typedef enum {
     ACCOUNT_EVENT_LAST         /**< Sentinel - not a real event */
 } account_event_t;
 
-/* ==== event parameter ==== */
-
 typedef struct {
     account_event_t event; /**< Event type code */
     account_t *tran;       /**< Sender / who initiated the action */
@@ -51,8 +45,6 @@ typedef struct {
     void *data;    /**< Pointer to data (const for PUB/NOTIFY, mutable for PULL) */
     uint32_t size; /**< Data size in bytes */
 } account_event_param_t;
-
-/* ==== error codes ==== */
 
 typedef enum {
     ACCOUNT_OK              = 0,  /**< Success */
@@ -66,12 +58,8 @@ typedef enum {
     ACCOUNT_ERR_PARAM       = -8  /**< Invalid parameter (NULL pointer, etc.) */
 } account_err_t;
 
-/* ==== callback type ==== */
-
 typedef account_err_t (*account_cb_t)(account_t *account,
                                       account_event_param_t *param);
-
-/* ==== account struct (fully public) ==== */
 
 struct account_t {
     const char *id;             /**< Unique account id string */
@@ -87,8 +75,6 @@ struct account_t {
         account_cb_t callback; /**< Event handler (NULL = ignore all events) */
     } priv;
 };
-
-/* ==== Account API ==== */
 
 /**
  * @brief  Create and register an account (constructor equivalent)

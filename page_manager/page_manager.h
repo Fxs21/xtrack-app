@@ -56,8 +56,6 @@ typedef struct page_manager_t {
     lv_style_t *root_default_style; /**< Optional style applied to every page root */
 } page_manager_t;
 
-/* -- Public API -- */
-
 /**
  * @brief  Initialize the page manager (stack empty, pool empty)
  * @param  pm: Pointer to the page manager instance

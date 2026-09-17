@@ -25,8 +25,6 @@
 #define BATT_USAGE_H_OFFSET 6
 #define BATT_USAGE_W_OFFSET 4
 
-/* ---- Internal state ---- */
-
 typedef struct {
     lv_obj_t *cont;
 
@@ -52,8 +50,6 @@ typedef struct {
 } status_bar_ctx_t;
 
 static status_bar_ctx_t s_ctx;
-
-/* ---- Battery charging animation helpers ---- */
 
 static void batt_anim_set_height(void *var, int32_t v)
 {
@@ -103,8 +99,6 @@ static void batt_charging_anim_start(lv_obj_t *obj)
     lv_anim_set_ready_cb(&a_h, batt_height_finish);
     lv_anim_start(&a_h);
 }
-
-/* ---- Per-tick display update ---- */
 
 static void refresh_display(void)
 {
@@ -168,14 +162,10 @@ static void on_timer(lv_timer_t *timer)
     }
 }
 
-/* ---- Appear/hide animation ---- */
-
 static void on_hide_finish(lv_anim_t *a)
 {
     lv_obj_add_flag((lv_obj_t *)lv_anim_get_user_data(a), LV_OBJ_FLAG_HIDDEN);
 }
-
-/* ---- DataCenter event callback ---- */
 
 static int on_data_event(account_t *account, account_event_param_t *param)
 {
@@ -238,8 +228,6 @@ static int on_data_event(account_t *account, account_event_param_t *param)
     return ACCOUNT_ERR_UNSUPPORTED;
 }
 
-/* ---- Public API ---- */
-
 void status_bar_init(data_center_t *dc)
 {
     memset(&s_ctx, 0, sizeof(s_ctx));
@@ -255,7 +243,6 @@ void status_bar_init(data_center_t *dc)
     account_subscribe(s_ctx.account, "Power");
     account_set_callback(s_ctx.account, on_data_event);
 
-    /* ---- Create LVGL widgets on the display top layer ---- */
     lv_obj_t *layer = lv_layer_top();
 
     s_ctx.cont = lv_obj_create(layer);
@@ -285,7 +272,6 @@ void status_bar_init(data_center_t *dc)
     lv_style_set_text_color(&style_label, lv_color_white());
     lv_style_set_text_font(&style_label, &lv_font_montserrat_16);
 
-    /* ---- Satellite icon + count ---- */
     s_ctx.img_sat = lv_img_create(s_ctx.cont);
     lv_img_set_src(s_ctx.img_sat, resource_pool_get_image("satellite"));
     lv_obj_align(s_ctx.img_sat, LV_ALIGN_LEFT_MID, 14, 0);
@@ -295,7 +281,6 @@ void status_bar_init(data_center_t *dc)
     lv_obj_align_to(s_ctx.label_sat, s_ctx.img_sat, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
     lv_label_set_text(s_ctx.label_sat, "0");
 
-    /* ---- SD card icon (slides out with overshoot on LV_STATE_DISABLED) ---- */
     s_ctx.img_sd = lv_img_create(s_ctx.cont);
     lv_img_set_src(s_ctx.img_sd, resource_pool_get_image("sd_card"));
     lv_obj_align(s_ctx.img_sd, LV_ALIGN_LEFT_MID, 55, -1);
@@ -307,13 +292,11 @@ void status_bar_init(data_center_t *dc)
     lv_obj_set_style_transition(s_ctx.img_sd, &tran_sd, LV_STATE_DISABLED);
     lv_obj_set_style_transition(s_ctx.img_sd, &tran_sd, LV_STATE_DEFAULT);
 
-    /* ---- Clock (center) ---- */
     s_ctx.label_clock = lv_label_create(s_ctx.cont);
     lv_obj_add_style(s_ctx.label_clock, &style_label, 0);
     lv_label_set_text(s_ctx.label_clock, "00:00");
     lv_obj_center(s_ctx.label_clock);
 
-    /* ---- Battery icon + fill bar + percentage ---- */
     s_ctx.img_batt = lv_img_create(s_ctx.cont);
     lv_img_set_src(s_ctx.img_batt, resource_pool_get_image("battery"));
     lv_obj_align(s_ctx.img_batt, LV_ALIGN_RIGHT_MID, -35, 0);
@@ -340,7 +323,6 @@ void status_bar_init(data_center_t *dc)
     /* Initial state: transparent style */
     lv_obj_clear_state(s_ctx.cont, LV_STATE_USER_1);
 
-    /* ---- Periodic update timer ---- */
     lv_timer_t *timer = lv_timer_create(on_timer, 1000, NULL);
     lv_timer_ready(timer);
 

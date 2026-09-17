@@ -31,12 +31,8 @@
 extern "C" {
 #endif
 
-/* -- Forward declarations -- */
-
 typedef struct page_manager_t page_manager_t;
 typedef struct page_t page_t;
-
-/* -- Stash data area (page-to-page parameter passing) -- */
 
 /**
  * @brief  Stash descriptor for page-to-page parameter passing
@@ -57,8 +53,6 @@ typedef struct {
  *         pm_push(pm, "Run", PAGE_STASH_MAKE(type));
  */
 #define page_stash_make(data) ((page_stash_t){&(data), sizeof(data)})
-
-/* -- Page state enum -- */
 
 typedef enum {
     PAGE_STATE_IDLE,           /**< Not loaded / terminal */
@@ -87,8 +81,6 @@ typedef enum {
     LOAD_ANIM_LAST
 } load_anim_t;
 
-/* -- Lifecycle vtable -- */
-
 typedef struct page_vtable_t {
     /** Create widgets on page->root. Called once per load cycle. */
     void (*on_load)(page_t *page);
@@ -108,13 +100,15 @@ typedef struct page_vtable_t {
     void (*on_did_unload)(page_t *page);
 } page_vtable_t;
 
-/* -- Page struct (public, but priv is PM-internal) --
- *   Public fields (name/root/manager/user_data/vtable) may be read
- *   by application code.  The priv section is managed exclusively by
- *   the PageManager -- application code MUST use the setter functions
- *   (page_set_force_cache, page_set_disable_auto_cache,
- *   page_set_custom_anim, page_clear_custom_anim) instead of
- *   writing priv directly.                              */
+/*
+ * Page struct (public, but priv is PM-internal)
+ * Public fields (name/root/manager/user_data/vtable) may be read
+ * by application code.  The priv section is managed exclusively by
+ * the PageManager -- application code MUST use the setter functions
+ * (page_set_force_cache, page_set_disable_auto_cache,
+ * page_set_custom_anim, page_clear_custom_anim) instead of
+ * writing priv directly.
+ */
 
 struct page_t {
     const char *name;        /**< Page name (static string) */
@@ -158,8 +152,6 @@ struct page_t {
         } anim;
     } priv;
 };
-
-/* -- API -- */
 
 /**
  * @brief  Initialize a page struct

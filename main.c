@@ -39,7 +39,8 @@
 static uint8_t s_bezel_buf[PANEL_W * PANEL_H * 4];
 static lv_image_dsc_t s_bezel_dsc;
 
-/* ---- Prototype: circular bezel -------------------------------------------------
+/*
+ * Prototype: circular bezel
  * Opaque black outside the visible circle, fully transparent inside.
  * Must NOT be clickable: LVGL picks the topmost hit object as the press target,
  * so a clickable overlay would swallow every touch gesture.
@@ -76,7 +77,8 @@ static void round_bezel_create(void)
     lv_obj_set_pos(img, 0, 0);
 }
 
-/* ---- Prototype: scripted screenshot -------------------------------------------
+/*
+ * Prototype: scripted screenshot
  * Composes the active screen with the top layer (status bar lives there), applies
  * the circular bezel, and writes a binary PPM (P6).  This is what the physical
  * panel shows, so "is it cut off?" can be checked without the board.

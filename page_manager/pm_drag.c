@@ -45,7 +45,7 @@ static drag_axis_t pm_get_drag_axis(load_anim_t type)
     }
 }
 
-/* -- Position helpers (no static variables, operate on page->priv.drag) -- */
+/* Position helpers (no static variables, operate on page->priv.drag) */
 
 static lv_coord_t drag_get_pos(page_t *page)
 {
@@ -281,8 +281,6 @@ static void on_root_drag_event(lv_event_t *e)
         lv_anim_start(&a);
     }
 }
-
-/* -- Public API -- */
 
 void pm_root_enable_drag(page_manager_t *pm, page_t *page)
 {

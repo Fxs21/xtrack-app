@@ -21,10 +21,6 @@
 #define COLOR_BTN_BG   lv_color_hex(0x666666)
 #define COLOR_BTN_PRS  lv_color_hex(0xbbbbbb)
 
-/* ================================================================
- *  Sub-info group (value + unit, flex column)
- * ================================================================ */
-
 static void sub_info_create(lv_obj_t *parent, dialplate_sub_info_t *info,
                             const char *unit_text)
 {
@@ -46,10 +42,6 @@ static void sub_info_create(lv_obj_t *parent, dialplate_sub_info_t *info,
     lv_obj_set_style_text_color(info->label_unit, COLOR_UNIT, 0);
     lv_label_set_text(info->label_unit, unit_text);
 }
-
-/* ================================================================
- *  Button helper — image as background (X-Track pattern)
- * ================================================================ */
 
 static lv_obj_t *btn_create(lv_obj_t *parent, const char *img_name,
                             lv_coord_t x_ofs)
@@ -75,13 +67,8 @@ static lv_obj_t *btn_create(lv_obj_t *parent, const char *img_name,
     return obj;
 }
 
-/* ================================================================
- *  Public API
- * ================================================================ */
-
 void dialplate_view_create(dialplate_view_t *view, lv_obj_t *root)
 {
-    /* ---- Bottom info (created first so it has lower z-order) ---- */
     lv_obj_t *cont = lv_obj_create(root);
     lv_obj_remove_style_all(cont);
     lv_obj_set_style_bg_color(cont, lv_color_black(), 0);
@@ -98,7 +85,6 @@ void dialplate_view_create(dialplate_view_t *view, lv_obj_t *root)
         sub_info_create(cont, &view->bottom_info.grp[i], units[i]);
     }
 
-    /* ---- Top info (speed) ---- */
     cont = lv_obj_create(root);
     lv_obj_remove_style_all(cont);
     lv_obj_set_size(cont, LV_HOR_RES, 142);
@@ -121,7 +107,6 @@ void dialplate_view_create(dialplate_view_t *view, lv_obj_t *root)
     lv_obj_align_to(view->top_info.label_unit, view->top_info.label_speed,
                     LV_ALIGN_OUT_BOTTOM_MID, 0, 8);
 
-    /* ---- Buttons ---- */
     cont = lv_obj_create(root);
     lv_obj_remove_style_all(cont);
     lv_obj_set_size(cont, LV_HOR_RES, 40);

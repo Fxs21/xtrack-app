@@ -3,11 +3,7 @@
 
 #include "page_manager.h"
 
-/* -- State machine (pm_state.c) -- */
-
 void pm_state_update(page_manager_t *pm, page_t *page);
-
-/* -- Animation (pm_anim.c) -- */
 
 void pm_anim_start(page_t *page);
 

@@ -17,8 +17,6 @@
 
 #define TAG "data_center"
 
-/* == DataCenter API == */
-
 data_center_t *data_center_create(void)
 {
     data_center_t *data_center =

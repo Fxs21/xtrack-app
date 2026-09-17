@@ -4,9 +4,7 @@ project(lvgl-simulator C)
 # Generate compile_commands.json for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#============================================================
 # LVGL — add_subdirectory creates `lvgl` library target
-#============================================================
 # lv_conf.h is auto-detected from CMAKE_SOURCE_DIR (this dir)
 # or set LV_BUILD_CONF_PATH for custom location
 set(CONFIG_LV_BUILD_DEMOS OFF CACHE BOOL "Build demos")
@@ -14,16 +12,12 @@ set(CONFIG_LV_BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
 
 add_subdirectory(third_party/lvgl)
 
-#============================================================
 # Our application
-#============================================================
-# === Core ===
 set(CORE_SOURCES
     main.c
     app.c
 )
 
-# === HAL ===
 set(HAL_SOURCES
     hal/hal_clock.c
     hal/hal_gps.c
@@ -32,13 +26,11 @@ set(HAL_SOURCES
     hal/hal_sdl.c
 )
 
-# === Data Center ===
 set(DATA_CENTER_SOURCES
     data_center/account.c
     data_center/data_center.c
 )
 
-# === Data Process ===
 set(DATA_PROC_SOURCES
     data_proc/data_proc.c
     data_proc/dp_clock.c
@@ -46,7 +38,6 @@ set(DATA_PROC_SOURCES
     data_proc/dp_power.c
 )
 
-# === Page Manager ===
 set(PAGE_MANAGER_SOURCES
     page_manager/page.c
     page_manager/page_manager.c
@@ -55,7 +46,6 @@ set(PAGE_MANAGER_SOURCES
     page_manager/pm_state.c
 )
 
-# === Pages ===
 set(PAGES_SOURCES
     pages/dialplate/dialplate_model.c
     pages/dialplate/dialplate_page.c
@@ -72,17 +62,14 @@ set(PAGES_SOURCES
     pages/system_infos/system_infos_view.c
 )
 
-# === Resources ===
 file(GLOB RESOURCE_SOURCES resource/image/*.c)
 set(RESOURCE_POOL resource/resource_pool.c)
 
-# === Data Structures ===
 set(DS_SOURCES
     utils/ds/dbl_buf.c
     utils/ds/vector.c
 )
 
-# === Aggregate ===
 set(SOURCES
     ${CORE_SOURCES}
     ${HAL_SOURCES}
