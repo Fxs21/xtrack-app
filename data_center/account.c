@@ -50,14 +50,15 @@ account_t *account_create(data_center_t *data_center, const char *id,
     account->user_data   = user_data;
 
     if (buf_size > 0) {
-        uint8_t *buf = (uint8_t *)malloc(buf_size * 2);
+        uint8_t *buf = (uint8_t *)malloc(buf_size);
         if (!buf) {
-            LOG_E(TAG, "%s: malloc(%" PRIu32 ") failed", id, buf_size * 2);
+            LOG_E(TAG, "%s: malloc(%" PRIu32 ") failed", id, buf_size);
             account_destroy(account);
             return NULL;
         }
-        memset(buf, 0, buf_size * 2);
-        dbl_buf_init(&account->priv.dbl_buf, buf, buf + buf_size, buf_size);
+        memset(buf, 0, buf_size);
+        account->priv.value_buf  = buf;
+        account->priv.value_size = buf_size;
     }
 
     if (data_center_add_account(data_center, account) != ACCOUNT_OK) {
@@ -76,9 +77,9 @@ void account_destroy(account_t *account)
 
     LOG_I(TAG, "Account[%s] deleting...", account->id);
 
-    /* Free double buffer */
-    if (account->priv.dbl_buf.buf[0])
-        free(account->priv.dbl_buf.buf[0]);
+    /* Free the latest-value buffer */
+    if (account->priv.value_buf)
+        free(account->priv.value_buf);
 
     /* Delete timer */
     if (account->priv.timer) {
@@ -171,15 +172,13 @@ account_err_t account_commit(account_t *self, const void *data, uint32_t size)
 {
     if (!self || !data)
         return ACCOUNT_ERR_PARAM;
-    if (self->priv.dbl_buf.size == 0)
+    if (self->priv.value_size == 0)
         return ACCOUNT_ERR_NO_CACHE;
-    if (size != self->priv.dbl_buf.size)
+    if (size != self->priv.value_size)
         return ACCOUNT_ERR_SIZE;
 
-    void *w_buf;
-    dbl_buf_get_write_buf(&self->priv.dbl_buf, &w_buf);
-    memcpy(w_buf, data, size);
-    dbl_buf_set_write_done(&self->priv.dbl_buf);
+    memcpy(self->priv.value_buf, data, size);
+    self->priv.has_value = true;
     return ACCOUNT_OK;
 }
 
@@ -187,11 +186,9 @@ account_err_t account_publish(account_t *self)
 {
     if (!self)
         return ACCOUNT_ERR_PARAM;
-    if (self->priv.dbl_buf.size == 0)
+    if (self->priv.value_size == 0)
         return ACCOUNT_ERR_NO_CACHE;
-
-    void *r_buf;
-    if (!dbl_buf_get_read_buf(&self->priv.dbl_buf, &r_buf))
+    if (!self->priv.has_value)
         return ACCOUNT_ERR_NO_DATA;
 
     account_err_t retval = ACCOUNT_FAIL;
@@ -206,14 +203,12 @@ account_err_t account_publish(account_t *self)
         param.event = ACCOUNT_EVENT_PUB_PUBLISH;
         param.tran  = self;
         param.recv  = subscriber;
-        param.data  = r_buf;
-        param.size  = self->priv.dbl_buf.size;
+        param.data  = self->priv.value_buf;
+        param.size  = self->priv.value_size;
 
         retval = subscriber->priv.callback(subscriber, &param);
-
     }
 
-    dbl_buf_set_read_done(&self->priv.dbl_buf);
     return retval;
 }
 
@@ -245,18 +240,16 @@ account_err_t account_pull(account_t *self, const char *pub_id, void *data,
         return ret;
     }
 
-    /* Fallback: read double buffer directly */
-    if (publisher->priv.dbl_buf.size != 0) {
-        if (publisher->priv.dbl_buf.size != size) {
+    /* Fallback: read the latest committed value directly */
+    if (publisher->priv.value_size != 0) {
+        if (publisher->priv.value_size != size) {
             LOG_E(TAG, "data size publisher[%s]:%" PRIu32 " != subscriber[%s]:%" PRIu32 ",",
-                  publisher->id, publisher->priv.dbl_buf.size, self->id, size);
+                  publisher->id, publisher->priv.value_size, self->id, size);
             return ACCOUNT_ERR_SIZE;
         }
 
-        void *r_buf;
-        if (dbl_buf_get_read_buf(&publisher->priv.dbl_buf, &r_buf)) {
-            memcpy(data, r_buf, size);
-            dbl_buf_set_read_done(&publisher->priv.dbl_buf);
+        if (publisher->priv.has_value) {
+            memcpy(data, publisher->priv.value_buf, size);
             return ACCOUNT_OK;
         }
         LOG_W(TAG, "publisher[%s] data was not committed", publisher->id);

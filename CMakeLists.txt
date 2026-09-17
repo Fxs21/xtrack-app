@@ -66,7 +66,6 @@ file(GLOB RESOURCE_SOURCES resource/image/*.c)
 set(RESOURCE_POOL resource/resource_pool.c)
 
 set(DS_SOURCES
-    utils/ds/dbl_buf.c
     utils/ds/vector.c
 )
 

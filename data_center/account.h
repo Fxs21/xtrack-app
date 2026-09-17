@@ -6,18 +6,23 @@
  * (same design as X-Track's Account class).
  *
  * Communication patterns:
- *   - Commit/Publish: write data into the double buffer, then broadcast to all
- *     subscribers via ACCOUNT_EVENT_PUB_PUBLISH
+ *   - Commit/Publish: store the value, then broadcast it to all subscribers via
+ *     ACCOUNT_EVENT_PUB_PUBLISH
  *   - Notify:          one-to-one event to a specific account via ACCOUNT_EVENT_NOTIFY
- *   - Pull:            subscriber pulls latest data from a publisher via
- *     ACCOUNT_EVENT_SUB_PULL (callback) or direct double-buffer read
+ *   - Pull:            subscriber pulls the publisher's latest value via
+ *     ACCOUNT_EVENT_SUB_PULL (callback) or a direct read
+ *
+ * Value semantics: an account with buf_size > 0 owns ONE value buffer holding the
+ * latest committed value.  Subscribers receive a pointer to it and must copy it
+ * inside the callback if they need it afterwards.  There is no double buffer and
+ * no read/write bookkeeping: reading never consumes anything.
  */
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
 #include <stdint.h>
 #include <stddef.h>
-#include "dbl_buf.h"
+#include <stdbool.h>
 #include "vector.h"
 #include <lvgl.h>
 
@@ -70,9 +75,11 @@ struct account_t {
     vector_t subscribers; /**< Followers (dynamic array) */
 
     struct {
-        dbl_buf_t dbl_buf;     /**< Double buffer (size=0 means unallocated) */
-        lv_timer_t *timer;     /**< lv_timer handle (NULL = not created) */
-        account_cb_t callback; /**< Event handler (NULL = ignore all events) */
+        void *value_buf;          /**< Latest committed value (NULL = none) */
+        uint32_t value_size;      /**< Size of value_buf in bytes (0 = unallocated) */
+        bool has_value;           /**< Set once a value has been committed */
+        lv_timer_t *timer;        /**< lv_timer handle (NULL = not created) */
+        account_cb_t callback;    /**< Event handler (NULL = ignore all events) */
     } priv;
 };
 
@@ -122,14 +129,15 @@ account_t *account_subscribe(account_t *self, const char *pub_id);
 account_err_t account_unsubscribe(account_t *self, const char *pub_id);
 
 /**
- * @brief  Commit data to double buffer (ISR-safe write)
+ * @brief  Store the account's latest value
  * @param  self:   Pointer to the publishing account
- * @param  data: Pointer to the data to commit
+ * @param  data: Pointer to the data to store
  * @param  size:   Size of the data in bytes
  * @retval ACCOUNT_OK on success, ACCOUNT_ERR_PARAM if params are NULL,
  *         ACCOUNT_ERR_NO_CACHE if no buffer allocated,
- *         ACCOUNT_ERR_SIZE if size != buffer_size
- * @note   No event is sent. Call account_publish() to broadcast.
+ *         ACCOUNT_ERR_SIZE if size != value_size
+ * @note   Overwrites the previous value. No event is sent - call
+ *         account_publish() to broadcast it.
  */
 account_err_t account_commit(account_t *self, const void *data, uint32_t size);
 
@@ -138,11 +146,13 @@ account_err_t account_commit(account_t *self, const void *data, uint32_t size);
  * @param  self: Pointer to the publishing account
  * @retval ACCOUNT_OK on success, ACCOUNT_ERR_PARAM if account is NULL,
  *         ACCOUNT_ERR_NO_CACHE if no buffer allocated,
- *         ACCOUNT_ERR_NO_DATA if no data committed since last publish,
+ *         ACCOUNT_ERR_NO_DATA if no value has been committed yet,
  *         ACCOUNT_FAIL if no subscribers or all lack callbacks
- * @note   Sends ACCOUNT_EVENT_PUB_PUBLISH to every subscriber's callback.
+ * @note   Sends ACCOUNT_EVENT_PUB_PUBLISH to every subscriber's callback with a
+ *         pointer to the stored value; subscribers must copy it if they keep it.
  *         Errors from individual subscribers do NOT stop the broadcast
  *         (same as X-Track behaviour).
+ *         Publishing may be repeated: it always re-sends the current value.
  */
 account_err_t account_publish(account_t *self);
 
@@ -159,7 +169,8 @@ account_err_t account_publish(account_t *self);
  *         ACCOUNT_ERR_NO_CALLBACK if publisher has no callback and no buffer
  * @note   Only works if self is subscribed to pub_id (X-Track convention).
  *         Sends ACCOUNT_EVENT_SUB_PULL to the publisher's callback if registered,
- *         otherwise falls back to reading the double buffer directly.
+ *         otherwise reads the publisher's stored value directly. Reading does not
+ *         consume anything - pull always returns the current value.
  */
 account_err_t account_pull(account_t *self, const char *pub_id, void *data,
                            uint32_t size);

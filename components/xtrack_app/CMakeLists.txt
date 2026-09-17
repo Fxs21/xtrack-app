@@ -49,7 +49,6 @@ set(XTRACK_APP_SRCS
 
     "${XTRACK_APP_ROOT}/resource/resource_pool.c"
 
-    "${XTRACK_APP_ROOT}/utils/ds/dbl_buf.c"
     "${XTRACK_APP_ROOT}/utils/ds/vector.c"
 )
 
