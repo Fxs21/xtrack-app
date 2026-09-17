@@ -96,5 +96,7 @@ idf.py -p /dev/ttyACM0 flash monitor
 
 - **布局**:按 PC 的 480x320 横屏设计。AuraS3 是 466x466 方屏,以下位置需要适配:`pages/dialplate` 的 `LV_ALIGN_TOP_MID` 偏移与信息卡尺寸、`pages/system_infos` 的 `ITEM_PAD = (LV_VER_RES - 100) / 2` 与 `CARD_W` / `ICON_W`。宽度方向大多已用 `LV_HOR_RES` 自适应。
 - **输入模型**:PC 是鼠标拖动 + 滚轮(滚轮被映射成 encoder,用于组内焦点导航);板子是电容触摸,没有旋钮编码器。需要定案:触摸点击可用,拖动返回需要实测阈值,滚轮/键盘导航在板子上不可达。
-- **拖动返回**:`pm_root_enable_drag()` 目前只对 `dialplate` 开启,阈值和方向按鼠标手感调整过。
+- **拖动返回**:`pm_root_enable_drag()` 目前**没有任何页面启用**。`dialplate` 曾经启用,但它是栈底页(startup `pm_replace` 进来的),没有可返回的页面,`pm_pop()` 也会以 "only root page remains" 拒绝,所以调用已移除。待定的问题:该把拖动挂到 `livemap` / `system_infos`(它们下面有 `dialplate`),以及用什么轴。
+  注意轴向不是独立配置:`pm_drag.c` 的 `pm_get_drag_axis()` 由页面动画类型推出(LEFT/RIGHT → 横向,TOP/BOTTOM → 纵向),而全局动画目前是 `app.c` 的 `LOAD_ANIM_OVER_TOP`(纵向)。要做"左右滑动返回",必须同时把全局动画改成横向,否则会出现"往右拖、页面往下退出"。
+  另外:挂手势的页面要注意 LVGL 的按压目标选择(`lv_indev_search_obj` 取最上层命中对象)与冒泡(`EVENT_BUBBLE`),装饰性容器默认带 `CLICKABLE`,会吞掉按压,导致根对象收不到手势。
 - **板子 HAL 还是模拟数据**:`hal_gps` / `hal_power` 用的是 `esp_timer` 造的假数据(`hal_clock` 用编译时间兜底),真实 BSP 能力(GNSS / PMU / RTC)尚未接入。

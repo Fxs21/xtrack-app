@@ -179,8 +179,9 @@ static void on_load(page_t *base)
     /* ---- Periodic sport info update timer ---- */
     priv->timer = lv_timer_create(on_sport_timer, SPORT_UPDATE_MS, p);
 
-    /* ---- Drag support ---- */
-    pm_root_enable_drag(base->manager, base);
+    /* No drag-to-pop here: Dialplate is the bottom page of the stack
+     * (startup pm_replace()s into it), so there is nothing to pop back to.
+     * pm_pop() would refuse anyway (see pm_state: "only root page remains"). */
 
     /* ---- Button events ---- */
     lv_obj_add_event_cb(p->view.btn_cont.btn_map, on_map_click,
